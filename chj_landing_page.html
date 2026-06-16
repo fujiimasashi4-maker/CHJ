@@ -157,8 +157,8 @@ section{padding:84px 0}
 .hosp .pref{font-size:11.5px;font-weight:700;color:var(--teal-deep);background:var(--teal-soft);border-radius:6px;padding:2px 8px}
 .hosp .desc{font-size:13px;color:var(--ink-60);margin-top:6px;line-height:1.7}
 .feat-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
-.feat{display:inline-flex;align-items:center;gap:5px;background:var(--teal-soft);border:1px solid #BFE6EF;border-radius:8px;padding:4px 10px 4px 8px;font-size:11.5px;font-weight:700;color:var(--teal-deep)}
-.feat svg{width:14px;height:14px;fill:var(--teal-deep);flex:none}
+.feat{display:inline-flex;align-items:center;gap:5px;background:color-mix(in srgb, var(--fc) 12%, #fff);border:1px solid color-mix(in srgb, var(--fc) 35%, #fff);border-radius:8px;padding:4px 10px 4px 8px;font-size:11.5px;font-weight:700;color:var(--fc)}
+.feat svg{width:14px;height:14px;fill:var(--fc);flex:none}
 .hosp-video{margin-top:10px}
 .hosp-video iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;display:block;background:#000}
 .sns-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -553,14 +553,14 @@ const REGION_DATA = {
 
 /* 病院の機能アイコン定義（SVGパス入りで凡例にも使用） */
 const FEATURES = {
-  ward:       {label:"病棟",     svg:'<path d="M4 21V8l8-5 8 5v13h-5v-6H9v6H4z"/>'},
-  home:       {label:"在宅",     svg:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9z"/>'},
-  outpatient: {label:"外来",     svg:'<path d="M12 2a3 3 0 0 1 3 3v2h2a3 3 0 0 1 3 3 5 5 0 0 1-5 5h-1v2a3 3 0 1 1-6 0v-1a4 4 0 0 1-4-4V8a3 3 0 0 1 3-3h2V5a3 3 0 0 1 3-3z"/>'},
-  social:     {label:"社会的処方", svg:'<path d="M12 21s-7-4.5-9.5-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>'},
-  agri:       {label:"農業",     svg:'<path d="M12 22c5-1 8-5 8-10 0-1-1-2-2-2-3 0-5 2-6 5 0-4 2-8 6-10-6 0-10 4-11 9-1-1-2-2-3-2-1 0-2 1-2 2 0 5 3 9 8 8z"/>'},
-  rehab:      {label:"リハビリ",  svg:'<path d="M13 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 22l2-7-2-2V8l5-2 4 3 3 1-1 2-3-1-2-1v3l3 3v6h-2v-5l-3-2-2 6H7z"/>'},
-  pediatric:  {label:"小児",     svg:'<path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0H4z"/>'},
-   care:       {label:"介護",    svg:'<path d="M12 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-3 2a3 3 0 0 0-3 3v5h2v6h2v-6h4v6h2v-6h2v-5a3 3 0 0 0-3-3H9z"/>'}
+  ward:       {label:"病棟",     color:"#3FA9D6", svg:'<path d="M4 21V8l8-5 8 5v13h-5v-6H9v6H4z"/>'},
+  home:       {label:"在宅",     color:"#3DB57A", svg:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9z"/>'},
+  outpatient: {label:"外来",     color:"#F2A33C", svg:'<path d="M12 2a3 3 0 0 1 3 3v2h2a3 3 0 0 1 3 3 5 5 0 0 1-5 5h-1v2a3 3 0 1 1-6 0v-1a4 4 0 0 1-4-4V8a3 3 0 0 1 3-3h2V5a3 3 0 0 1 3-3z"/>'},
+  social:     {label:"社会的処方", color:"#E36C9E", svg:'<path d="M12 21s-7-4.5-9.5-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>'},
+  agri:       {label:"農業",     color:"#7CB342", svg:'<path d="M12 22c5-1 8-5 8-10 0-1-1-2-2-2-3 0-5 2-6 5 0-4 2-8 6-10-6 0-10 4-11 9-1-1-2-2-3-2-1 0-2 1-2 2 0 5 3 9 8 8z"/>'},
+  rehab:      {label:"リハビリ",  color:"#8E6FD1", svg:'<path d="M13 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 22l2-7-2-2V8l5-2 4 3 3 1-1 2-3-1-2-1v3l3 3v6h-2v-5l-3-2-2 6H7z"/>'},
+  pediatric:  {label:"小児",     color:"#F2785C", svg:'<path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0H4z"/>'},
+  care:       {label:"介護",     color:"#D9A441", svg:'<path d="M12 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-3 2a3 3 0 0 0-3 3v5h2v6h2v-6h4v6h2v-6h2v-5a3 3 0 0 0-3-3H9z"/>'}
 };
 
 /* 地図バッジの表示位置（viewBox座標） */
@@ -655,7 +655,7 @@ function renderPanel(region){
     html += `<div class="hosp-list">` + d.hospitals.map(h=>`
       <div class="hosp">
         <div class="name">${h.url ? `<a class="name-link" href="${h.url}" target="_blank" rel="noopener">${h.name}</a>` : h.name}<span class="pref">${h.pref}</span></div>
-        ${h.features ? `<div class="feat-row">` + h.features.filter(f=>FEATURES[f]).map(f=>`<span class="feat" title="${FEATURES[f].label}"><svg viewBox="0 0 24 24" aria-hidden="true">${FEATURES[f].svg}</svg><span>${FEATURES[f].label}</span></span>`).join('') + `</div>` : ``}
+        ${h.features ? `<div class="feat-row">` + h.features.filter(f=>FEATURES[f]).map(f=>`<span class="feat" title="${FEATURES[f].label}" style="--fc:${FEATURES[f].color}"><svg viewBox="0 0 24 24" aria-hidden="true">${FEATURES[f].svg}</svg><span>${FEATURES[f].label}</span></span>`).join('') + `</div>` : ``}
         <div class="desc">${h.desc}</div>
         ${h.youtube ? `<div class="hosp-video"><iframe src="${h.youtube}" title="${h.name} YouTube" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>` : ``}
         ${h.sns ? `<div class="sns-row">` + h.sns.map(s=>`<a class="sns-link" href="${s.url}" target="_blank" rel="noopener">${s.label}</a>`).join('') + `</div>` : ``}
