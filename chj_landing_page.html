@@ -41,9 +41,9 @@ header{
   background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
   border-bottom:1px solid var(--line);
 }
-.header-in{max-width:1100px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px}
+.header-in{max-width:1100px;margin:0 auto;padding:12px 24px;display:flex;align-items:center;gap:14px}
 .logo{display:flex;align-items:center;text-decoration:none}
-.logo-img{height:40px;width:auto;display:block}
+.logo-img{height:72px;width:auto;display:block}
 .logo-mark{width:34px;height:34px;display:grid;place-items:center}
 .logo-text{line-height:1.2}
 .logo-text b{font-size:18px;letter-spacing:.04em;display:block;font-family:'Montserrat',sans-serif}
@@ -156,6 +156,9 @@ section{padding:84px 0}
 .hosp .name-link:hover{border-bottom-color:var(--teal-deep)}
 .hosp .pref{font-size:11.5px;font-weight:700;color:var(--teal-deep);background:var(--teal-soft);border-radius:6px;padding:2px 8px}
 .hosp .desc{font-size:13px;color:var(--ink-60);margin-top:6px;line-height:1.7}
+.feat-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+.feat{display:inline-flex;align-items:center;gap:5px;background:var(--teal-soft);border:1px solid #BFE6EF;border-radius:8px;padding:4px 10px 4px 8px;font-size:11.5px;font-weight:700;color:var(--teal-deep)}
+.feat svg{width:14px;height:14px;fill:var(--teal-deep);flex:none}
 .hosp-video{margin-top:10px}
 .hosp-video iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;display:block;background:#000}
 .sns-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
@@ -491,12 +494,16 @@ const REGION_DATA = {
     ]},
   tokai: { label:"東海", color:"#3FB9C9",
     hospitals:[
+      {name:"豊田地域医療センター", pref:"愛知県", desc:"愛知県豊田市の190床の病院。総合診療を軸に、外来・病棟・在宅をシームレスにつなぐコミュニティホスピタルの先駆的モデル。リハビリ・介護・福祉までワンストップで提供しています。", url:"https://www.toyotachiiki-mc.or.jp/",
+        features:["outpatient","ward","home","rehab","care"]},
       {name:"掛川東病院", pref:"静岡県", desc:"CHJサミットをサポートする、地域包括ケアを実践するコミュニティホスピタルです。", url:""},
       {name:"○○病院（サンプル）", pref:"愛知県", desc:"総合診療外来を有する地域密着型の病院です。", url:""},
       {name:"○○病院（サンプル）", pref:"岐阜県", desc:"在宅医療支援病院として地域の暮らしを支えています。", url:""}
     ]},
   kansai: { label:"関西", color:"#7E9FE8",
     hospitals:[
+      {name:"川崎在宅クリニック", pref:"兵庫県", desc:"神戸市の医療法人川崎病院の在宅医療部門。総合診療医を中心に、小児から高齢者まで在宅での訪問診療・看取りを実践しています。", url:"https://www.kawasaki-hospital-kobe.or.jp/department/all/kawasakizaitakuclinic/",
+        features:["home","outpatient","pediatric"]},
       {name:"○○病院（サンプル）", pref:"大阪府", desc:"都市型コミュニティホスピタルとして在宅医療を推進。", url:""},
       {name:"○○病院（サンプル）", pref:"京都府", desc:"家庭医療を軸に、地域包括ケアを実践しています。", url:""},
       {name:"○○病院（サンプル）", pref:"兵庫県", desc:"外来から在宅看取りまで切れ目ない医療を提供。", url:""},
@@ -505,6 +512,8 @@ const REGION_DATA = {
     ]},
   chugoku: { label:"中国", color:"#F2968D",
     hospitals:[
+      {name:"光輝病院", pref:"山口県", desc:"山口県平生町の212床の病院。医療と介護が一体となったコミュニティホスピタルとして、病院・介護医療院・在宅医療を通じて地域の暮らしを支えています。", url:"https://koukikai-group.or.jp/",
+        features:["ward","home","outpatient","rehab","care"]},
       {name:"○○病院（サンプル）", pref:"広島県", desc:"地域に根ざした包括的な医療とケアを提供しています。", url:""},
       {name:"○○病院（サンプル）", pref:"岡山県", desc:"在宅医療支援病院として在宅看取りを実践。", url:""},
       {name:"○○病院（サンプル）", pref:"山口県", desc:"総合診療外来と地域包括ケア病棟を有しています。", url:""}
@@ -514,6 +523,7 @@ const REGION_DATA = {
   kyushu: { label:"九州", color:"#7FC97E",
     hospitals:[
       {name:"頴田病院", pref:"福岡県", desc:"日本で初めて「コミュニティホスピタル」と定義された病院。CHJ発祥の地として、総合診療・在宅医療を実践。YouTube「かいたラジオ」で地域医療について発信しています。", url:"https://www.kaita-hospital.jp/",
+        features:["ward","home","outpatient","social"],
         youtube:"https://www.youtube-nocookie.com/embed/videoseries?list=UU04UCjHYeLEFht1hvNlaIkg",
         sns:[
           {label:"YouTube", url:"https://www.youtube.com/@kaitaradio"},
@@ -521,6 +531,7 @@ const REGION_DATA = {
           {label:"ブログ", url:"https://ameblo.jp/kaitahp/"}
         ]},
       {name:"谷田病院", pref:"熊本県", desc:"熊本県甲佐町の内科・総合診療科・コミュニティホスピタル。YouTube「やつだチャンネル」をはじめSNSで積極的に情報発信しています。", url:"https://www.yatsuda-kai.jp/",
+        features:["ward","home","outpatient","social","agri"],
         youtube:"https://www.youtube-nocookie.com/embed/IQVh_nOhuaU",
         sns:[
           {label:"YouTube", url:"https://www.youtube.com/@yatsuda"},
@@ -530,6 +541,8 @@ const REGION_DATA = {
           {label:"Facebook", url:"https://www.facebook.com/yatsuda.hp/"},
           {label:"公式LINE", url:"https://lin.ee/npiR3RT"}
         ]},
+      {name:"済生会みすみ病院", pref:"熊本県", desc:"宇城・上天草地域の中核病院（128床）。外来から入院・リハビリ・在宅介護までトータルでサポートし、済生会熊本病院とIT連携した地域医療を実践しています。", url:"https://www.sk-misumi.jp/",
+        features:["outpatient","ward","home","rehab","care"]},
       {name:"○○病院（サンプル）", pref:"福岡県", desc:"家庭医療外来を中心に地域の健康を支えています。", url:""},
       {name:"○○病院（サンプル）", pref:"大分県", desc:"年間10例以上の在宅看取りを実践しています。", url:""},
       {name:"○○病院（サンプル）", pref:"鹿児島県", desc:"予防から看取りまで、暮らしに寄り添う医療を提供。", url:""},
@@ -537,6 +550,18 @@ const REGION_DATA = {
     ]}
 };
 /* ▲▲ 病院データここまで ▲▲ */
+
+/* 病院の機能アイコン定義（SVGパス入りで凡例にも使用） */
+const FEATURES = {
+  ward:       {label:"病棟",     svg:'<path d="M4 21V8l8-5 8 5v13h-5v-6H9v6H4z"/>'},
+  home:       {label:"在宅",     svg:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9z"/>'},
+  outpatient: {label:"外来",     svg:'<path d="M12 2a3 3 0 0 1 3 3v2h2a3 3 0 0 1 3 3 5 5 0 0 1-5 5h-1v2a3 3 0 1 1-6 0v-1a4 4 0 0 1-4-4V8a3 3 0 0 1 3-3h2V5a3 3 0 0 1 3-3z"/>'},
+  social:     {label:"社会的処方", svg:'<path d="M12 21s-7-4.5-9.5-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>'},
+  agri:       {label:"農業",     svg:'<path d="M12 22c5-1 8-5 8-10 0-1-1-2-2-2-3 0-5 2-6 5 0-4 2-8 6-10-6 0-10 4-11 9-1-1-2-2-3-2-1 0-2 1-2 2 0 5 3 9 8 8z"/>'},
+  rehab:      {label:"リハビリ",  svg:'<path d="M13 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 22l2-7-2-2V8l5-2 4 3 3 1-1 2-3-1-2-1v3l3 3v6h-2v-5l-3-2-2 6H7z"/>'},
+  pediatric:  {label:"小児",     svg:'<path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0H4z"/>'},
+   care:       {label:"介護",    svg:'<path d="M12 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm-3 2a3 3 0 0 0-3 3v5h2v6h2v-6h4v6h2v-6h2v-5a3 3 0 0 0-3-3H9z"/>'}
+};
 
 /* 地図バッジの表示位置（viewBox座標） */
 const BADGE_POS = {
@@ -630,6 +655,7 @@ function renderPanel(region){
     html += `<div class="hosp-list">` + d.hospitals.map(h=>`
       <div class="hosp">
         <div class="name">${h.url ? `<a class="name-link" href="${h.url}" target="_blank" rel="noopener">${h.name}</a>` : h.name}<span class="pref">${h.pref}</span></div>
+        ${h.features ? `<div class="feat-row">` + h.features.filter(f=>FEATURES[f]).map(f=>`<span class="feat" title="${FEATURES[f].label}"><svg viewBox="0 0 24 24" aria-hidden="true">${FEATURES[f].svg}</svg><span>${FEATURES[f].label}</span></span>`).join('') + `</div>` : ``}
         <div class="desc">${h.desc}</div>
         ${h.youtube ? `<div class="hosp-video"><iframe src="${h.youtube}" title="${h.name} YouTube" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe></div>` : ``}
         ${h.sns ? `<div class="sns-row">` + h.sns.map(s=>`<a class="sns-link" href="${s.url}" target="_blank" rel="noopener">${s.label}</a>`).join('') + `</div>` : ``}
