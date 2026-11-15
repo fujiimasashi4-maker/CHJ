@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>お問い合わせ | コミュニティホスピタルジャパン</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#142b38;background:#f2fafc;line-height:1.65}
+*{box-sizing:border-box}body{margin:0}header,main{max-width:760px;margin:auto;padding:24px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:.925rem}
+a{color:#12657d;font-weight:700}main{padding-top:16px;padding-bottom:64px}
+h1{font-size:clamp(1.8rem,6vw,2.65rem);margin:6px 0}p{color:#405765}
+.state{padding:.65rem .9rem;background:#e5f7fb;border-left:4px solid #25768e;border-radius:5px}
+form{background:white;border:1px solid #cfe3eb;border-radius:16px;padding:clamp(16px,4vw,32px);margin:26px 0 18px}
+.field{margin:0 0 20px}label{display:block;font-weight:700;margin:0 0 5px}
+input,select,textarea{font:inherit;color:inherit;width:100%;border:1px solid #7799a7;border-radius:8px;padding:.7rem .8rem;background:white}
+textarea{min-height:125px;resize:vertical}small{font-weight:400;color:#4a6471}
+button{font:inherit;font-weight:700;color:white;background:#12657d;padding:.75rem 1rem;border:0;border-radius:99px;cursor:pointer}
+:focus-visible{outline:3px solid #047289;outline-offset:3px}
+output{display:block;margin-top:12px;color:#12657d;font-weight:600}
+</style>
+</head>
+<body>
+<header><a href="index.html">CHJ トップへ</a><a href="chj_supporter.html">サポーターのご案内</a></header>
+<main>
+  <h1>お問い合わせ</h1>
+  <p>CHJへの参加、CHマップ掲載、サポーターやその他のご相談を受け付ける窓口です。</p>
+  <p class="state"><strong>確認用</strong>：この画面は入力項目の見本です。内容は送信・保存されません。</p>
+  <form id="contact-preview" autocomplete="off">
+    <div class="field"><label for="name">氏名 <small>必須</small></label><input id="name" required maxlength="100"></div>
+    <div class="field"><label for="org">所属・団体名 <small>任意</small></label><input id="org" maxlength="150"></div>
+    <div class="field"><label for="email">メールアドレス <small>必須</small></label><input id="email" type="email" required maxlength="254"></div>
+    <div class="field"><label for="topic">お問い合わせの種類 <small>必須</small></label>
+      <select id="topic" required><option value="">選択してください</option><option>CHJへの参加</option><option>CHマップ掲載</option><option>サポーター・コンサルティング</option><option>イベント・セミナー</option><option>その他</option></select>
+    </div>
+    <div class="field"><label for="message">お問い合わせ内容 <small>必須</small></label><textarea id="message" required maxlength="3000" aria-describedby="privacy"></textarea><p id="privacy"><small>患者さんが特定できる情報は入力しないでください。</small></p></div>
+    <button type="button" id="check">入力を確認（送信なし）</button>
+    <output id="status" role="status"></output>
+  </form>
+</main>
+<script>
+const form = document.getElementById('contact-preview');
+form.addEventListener('submit', (event) => event.preventDefault());
+document.getElementById('check').addEventListener('click', () => {
+  document.getElementById('status').textContent = form.reportValidity() ? '必須項目を確認しました。送信は行われていません。' : '';
+});
+</script>
+</body>
+</html>
