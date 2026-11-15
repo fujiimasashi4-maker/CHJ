@@ -282,8 +282,6 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
 .event-archive time{display:block;color:var(--ink-60);font-size:12px}
 .event-archive a{display:inline-block;margin-top:4px;color:var(--teal-deep);font-size:13px;font-weight:700}
 
-#five-star-fest{scroll-margin-top:84px}
-.def-card a{color:var(--teal-deep);text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -310,7 +308,7 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
     <h1>地域に、暮らしに、<br>寄り添う病院を。<span class="accent">全国へ。</span></h1>
     <p class="lead">Community Hospital Japan（CHJ）は、外来での疾病予防から入院診療、退院後の在宅医療まで——より包括的に、より継続的に医療とケアを提供する「コミュニティホスピタル」の全国ネットワークです。</p>
     <div class="hero-stats">
-      <div class="stat"><div class="v num" id="stat-total">—</div><div class="l">CHマップ掲載病院</div></div>
+      <div class="stat"><div class="v num" id="stat-total">—</div><div class="l">CHマップ掲載施設</div></div>
       <a class="stat stat-sns" href="#official-sns"><div class="v num">633<small>人</small></div><div class="l">SNSフォロワー</div><div class="stat-link">公式SNSを見る →</div></a>
     </div>
   </div>
@@ -330,21 +328,21 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
     <div class="sec-head">
       <span class="en">Hospitals across Japan</span>
       <h2>全国のコミュニティホスピタル</h2>
-      <p>地図または地域名を選び、病院名を押すと所在地や公式サイトを確認できます。</p>
+      <p>地図または地域名を選び、施設名を押すと所在地や公式サイトを確認できます。</p>
     </div>
 
-    <div class="legend" id="legend" role="group" aria-label="地域を選択（数字は掲載病院数）"></div>
+    <div class="legend" id="legend" role="group" aria-label="地域を選択（数字は掲載施設数）"></div>
 
     <div class="map-wrap">
       <div class="map-box">
-        <svg id="japan-map" viewBox="0 0 438 516" role="group" aria-label="日本地図（地域ごとの掲載病院）"></svg>
-        <div class="map-hint"><span class="dot"></span>地図を押して掲載病院を見る</div>
+        <svg id="japan-map" viewBox="0 0 438 516" role="group" aria-label="日本地図（地域ごとの掲載施設）"></svg>
+        <div class="map-hint"><span class="dot"></span>地図を押して掲載施設を見る</div>
       </div>
 
       <aside class="panel" id="panel" aria-live="polite">
         <div class="panel-empty">
           <div class="big">🗾</div>
-          <p><b>地域を選択してください</b><br>選んだ地域の掲載病院が<br>ここに表示されます。</p>
+          <p><b>地域を選択してください</b><br>選んだ地域の掲載施設が<br>ここに表示されます。</p>
         </div>
       </aside>
     </div>
@@ -390,7 +388,7 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
     </div>
     <div class="about-grid">
       <div class="def-card"><div class="def-ico">🗾</div><div><h3>ネットワークの可視化</h3><p>全国のCHを掲載した「CHマップ」の運営</p></div></div>
-      <div class="def-card"><div class="def-ico">🤝</div><div><h3>学びと交流の場</h3><p>サミット・セミナーの開催、<a href="#five-star-fest">ファイブスターフェス</a>の企画</p></div></div>
+      <div class="def-card"><div class="def-ico">🤝</div><div><h3>学びと交流の場</h3><p>サミット・セミナーの開催、ファイブスターフェスの企画</p></div></div>
       <div class="def-card"><div class="def-ico">📈</div><div><h3>専門性と経営の支援</h3><p>医療機関の運営・経営や、新しい商品・サービスの開発に関する助言</p></div></div>
       <div class="def-card"><div class="def-ico">📚</div><div><h3>専攻医プログラム支援事業</h3><p>総合診療の専攻医を育てる研修プログラムの企画・運営を支援します。</p></div></div>
     </div>
@@ -502,11 +500,11 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
 <script>
 /* CHマップ掲載データ。会員・掲載契約の有無は集計しない。 */
 const REGION_DATA = {
-  hokkaido: {label:"北海道", color:"#E0635B", hospitals:[], relatedFacilities:[]},
-  tohoku: {label:"東北", color:"#F2BE45", hospitals:[], relatedFacilities:[]},
-  kanto: {label:"関東", color:"#3D9A57", hospitals:[], relatedFacilities:[]},
-  hokushinetsu: {label:"北陸甲信越", color:"#EE7F2D", hospitals:[], relatedFacilities:[]},
-  tokai: {label:"東海", color:"#3FB9C9", hospitals:[
+  hokkaido: {label:"北海道", color:"#E0635B", facilities:[]},
+  tohoku: {label:"東北", color:"#F2BE45", facilities:[]},
+  kanto: {label:"関東", color:"#3D9A57", facilities:[]},
+  hokushinetsu: {label:"北陸甲信越", color:"#EE7F2D", facilities:[]},
+  tokai: {label:"東海", color:"#3FB9C9", facilities:[
       {name:"掛川東病院", pref:"静岡県", desc:"回復期リハビリテーション・地域包括ケア・医療療養の病棟を備え、訪問診療で退院後の暮らしを支えます。介護医療院と介護老人保健施設を併設。掛川市と連携し、地域で健康講座などにも取り組んでいます。", url:"https://www.kakegawa-higashi.com/",
         youtube:"https://www.youtube-nocookie.com/embed/YwW2TGDAudk",
         sns:[{label:"YouTubeで見る", url:"https://www.youtube.com/watch?v=YwW2TGDAudk"}, {label:"Instagram", url:"https://www.instagram.com/kakegawa_east_hospital/"}, {label:"病院公式の動画一覧", url:"https://www.kakegawa-higashi.com/about/movie/"}, {label:"地域での取り組み", url:"https://www.kakegawa-higashi.com/community_hospital/"}],
@@ -520,22 +518,22 @@ const REGION_DATA = {
              {label:"Instagram", url:"https://www.instagram.com/trmc_kouhou/"},
              {label:"公式LINE", url:"https://lin.ee/K7D8Ci5"}]},
       {name:"紘仁病院", pref:"愛知県", address:"愛知県名古屋市守山区四軒家一丁目710番地",
-        desc:"医療法人香流会が運営する、精神科を中心に内科・外科などを備える病院です。", url:"https://koujin-hospital.jp/"}
-    ], relatedFacilities:[]},
-  kansai: {label:"関西", color:"#7E9FE8", hospitals:[
-      {name:"川崎病院", pref:"兵庫県", address:"兵庫県神戸市兵庫区東山町3-3-1",
-        desc:"神戸市兵庫区の二次救急病院。総合診療科を備え、院内の取り組み「川崎救急」を通じて在宅・施設と病院の連携を進めています。", url:"https://www.kawasaki-hospital-kobe.or.jp/",
-        sns:[{label:"Instagram", url:"https://www.instagram.com/kobe_kawasakihp_pr/"}]}
-    ], relatedFacilities:[]},
-  chugoku: {label:"中国", color:"#F2968D", hospitals:[
+        desc:"名古屋市守山区にある、精神科を中心に内科・外科などを備える病院です。運営法人は医療法人香流会で、理事長は重冨雄哉氏です。", url:"https://koujin-hospital.jp/"}
+    ]},
+  kansai: {label:"関西", color:"#7E9FE8", facilities:[
+      {name:"川崎在宅クリニック", kind:"診療所", pref:"兵庫県", address:"兵庫県神戸市兵庫区東山町3丁目3番1号",
+        desc:"松島和樹氏が所長を務める訪問診療のクリニックです。通院が難しい方の自宅や施設を訪ね、内科や小児の在宅医療に対応します。",
+        features:["home","pediatric"], url:"https://www.kawasaki-hospital-kobe.or.jp/department/all/kawasakizaitakuclinic/"}
+    ]},
+  chugoku: {label:"中国", color:"#F2968D", facilities:[
       {name:"光輝病院", pref:"山口県", desc:"山口県平生町の病院。医療と介護が一体となったコミュニティホスピタルとして、病院・介護医療院・在宅医療を通じて地域の暮らしを支えています。", url:"https://koukikai-group.or.jp/",
         features:["ward","home","outpatient","rehab","care"],
         address:"山口県熊毛郡平生町大字佐賀10002-77"}
-    ], relatedFacilities:[]},
-  shikoku: {label:"四国", color:"#C9CFD4", hospitals:[], relatedFacilities:[]},
-  kyushu: {label:"九州", color:"#7FC97E", hospitals:[
-      {name:"頴田病院", pref:"福岡県", desc:"日本で初めて「コミュニティホスピタル」と定義された病院。CHJ発祥の地として、総合診療・在宅医療を実践。YouTube「かいたラジオ」で地域医療について発信しています。", url:"https://www.kaita-hospital.jp/",
-        features:["ward","home","outpatient"],
+    ]},
+  shikoku: {label:"四国", color:"#C9CFD4", facilities:[]},
+  kyushu: {label:"九州", color:"#7FC97E", facilities:[
+      {name:"頴田病院", pref:"福岡県", desc:"日本で初めて「コミュニティホスピタル」と定義された病院。CHJ発祥の地として、総合診療・在宅医療に加え、訪問リハビリや介護保険の短時間通所リハビリ「りらいふ」を提供。YouTube「かいたラジオ」で地域医療について発信しています。", url:"https://www.kaita-hospital.jp/",
+        features:["ward","home","outpatient","rehab","care"],
         youtube:"https://www.youtube-nocookie.com/embed/videoseries?list=UU04UCjHYeLEFht1hvNlaIkg",
         sns:[
           {label:"かいたラジオ（YouTube）", url:"https://www.youtube.com/@kaitaradio"},
@@ -543,8 +541,8 @@ const REGION_DATA = {
           {label:"ブログ", url:"https://ameblo.jp/kaitahp/"}
         ],
         address:"福岡県飯塚市口原1061-1"},
-      {name:"谷田病院", pref:"熊本県", desc:"熊本県甲佐町の内科・総合診療科・コミュニティホスピタル。YouTube「やつだチャンネル」をはじめSNSで積極的に情報発信しています。", url:"https://www.yatsuda-kai.jp/",
-        features:["ward","home","outpatient","agri"],
+      {name:"谷田病院", pref:"熊本県", desc:"熊本県甲佐町の内科・総合診療科を備える病院です。通所・訪問リハビリや居宅介護支援を提供しています。YouTube「やつだチャンネル」をはじめSNSで積極的に情報発信しています。", url:"https://www.yatsuda-kai.jp/",
+        features:["ward","home","outpatient","rehab","care","agri"],
         youtube:"https://www.youtube-nocookie.com/embed/IQVh_nOhuaU",
         sns:[
           {label:"YouTube", url:"https://www.youtube.com/@yatsuda"},
@@ -555,7 +553,7 @@ const REGION_DATA = {
           {label:"公式LINE", url:"https://lin.ee/npiR3RT"}
         ],
         address:"熊本県上益城郡甲佐町岩下123"}
-    ], relatedFacilities:[]}
+    ]}
 };
 
 /* 病院の機能アイコン定義（SVGパス入りで凡例にも使用） */
@@ -608,9 +606,9 @@ Object.entries(PREF_PATHS).forEach(([region, prefs]) => {
   svg.appendChild(g);
 });
 
-/* --- 病院数バッジ --- */
+/* --- 地域ごとの掲載施設数 --- */
 Object.entries(BADGE_POS).forEach(([region,[x,y]])=>{
-  const n = REGION_DATA[region].hospitals.length;
+  const n = REGION_DATA[region].facilities.length;
   if(!n) return;
   const g = document.createElementNS(NS,'g');
   g.classList.add('badge-g');
@@ -630,7 +628,7 @@ Object.entries(REGION_DATA).forEach(([region,d])=>{
   b.className = 'chip';
   b.dataset.region = region;
   b.setAttribute('aria-pressed', 'false');
-  b.innerHTML = `<span class="sw" style="background:${d.color}"></span>${d.label}<span class="ct">${d.hospitals.length}</span>`;
+  b.innerHTML = `<span class="sw" style="background:${d.color}"></span>${d.label}<span class="ct">${d.facilities.length}</span>`;
   b.addEventListener('click', ()=>selectRegion(region));
   legend.appendChild(b);
 });
@@ -656,9 +654,10 @@ function selectRegion(region){
 function renderFacility(h){
   return `
       <details class="hosp">
-        <summary class="facility-toggle"><span class="facility-name">${h.name}</span><span class="pref">${h.pref}</span></summary>
-          ${h.group ? `<span class="facility-badge" data-kind="${h.group}">${FACILITY_GROUPS[h.group]}</span>` : ''}
-          ${h.kind ? `<span class="facility-badge" data-kind="related">${h.kind}</span>` : ''}</summary>
+        <summary class="facility-toggle">
+          <span class="facility-name">${h.name}</span><span class="pref">${h.pref}</span>
+          ${h.kind ? `<span class="pref">${h.kind}</span>` : ''}
+        </summary>
         <div class="facility-address"><b>所在地</b> ${h.address}</div>
         ${h.features ? `<div class="feat-row">` + h.features.filter(f=>FEATURES[f]).map(f=>`<span class="feat" title="${FEATURES[f].label}" style="--fc:${FEATURES[f].color}"><svg viewBox="0 0 24 24" aria-hidden="true">${FEATURES[f].svg}</svg><span>${FEATURES[f].label}</span></span>`).join('') + `</div>` : ``}
         <div class="desc">${h.desc}</div>
@@ -675,19 +674,19 @@ function renderPanel(region){
       <span class="sw" style="background:${d.color}"></span>
       <h3>${d.label}エリア</h3>
     </div>
-    <div class="panel-sub">掲載病院 <b>${d.hospitals.length}</b> 件</div>`;
-  if(d.hospitals.length){
-    html += '<div class="hosp-list">' + d.hospitals.map(renderFacility).join('') + '</div>';
+    <div class="panel-sub">掲載施設 <b>${d.facilities.length}</b> 件</div>`;
+  if(d.facilities.length){
+    html += '<div class="hosp-list">' + d.facilities.map(renderFacility).join('') + '</div>';
   }else{
-    html += '<div class="panel-empty" style="min-height:240px"><div class="big">🌱</div><p>現在このエリアの掲載病院はありません。</p></div>';
+    html += '<div class="panel-empty" style="min-height:240px"><div class="big">🌱</div><p>現在このエリアの掲載施設はありません。</p></div>';
   }
   html += '<p class="panel-note">掲載件数はCHマップの掲載情報に基づきます。CHJの会員登録・掲載契約を示すものではありません。</p>';
   panel.innerHTML = html;
 }
 
 /* --- 統計の自動反映 --- */
-const listedHospitals = Object.values(REGION_DATA).flatMap(d=>d.hospitals);
-document.getElementById('stat-total').textContent = listedHospitals.length;
+const listedFacilities = Object.values(REGION_DATA).flatMap(d=>d.facilities);
+document.getElementById('stat-total').textContent = listedFacilities.length;
 </script>
 </body>
 </html>
