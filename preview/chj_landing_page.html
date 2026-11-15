@@ -160,9 +160,6 @@ section{padding:84px 0}
 .hosp[open] .facility-toggle::after{content:"−"}
 .facility-toggle:focus-visible{outline:2px solid var(--teal-deep);outline-offset:4px;border-radius:4px}
 .facility-name{font-weight:700;font-size:15.5px}
-.facility-badge{font-size:11.5px;font-weight:700;color:#21505b;background:#e0f3f6;border-radius:6px;padding:2px 8px}
-.facility-badge[data-kind="auditor"]{color:#593a76;background:#f1e9f8}
-.facility-badge[data-kind="related"]{color:#594119;background:#f6eddb}
 .facility-address{font-size:13px;color:var(--ink-60);margin-top:8px}
 .facility-group{font-size:13px;font-weight:700;margin-top:16px;margin-bottom:6px}
 @media(max-width:900px){.panel{position:static;padding:20px;min-width:0;scroll-margin-top:90px}.hosp-list{max-height:none;overflow:visible;padding-right:0}.facility-toggle{min-height:44px}}
@@ -284,6 +281,9 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
 .event-archive strong{display:block;font-size:14px;margin:4px 0}
 .event-archive time{display:block;color:var(--ink-60);font-size:12px}
 .event-archive a{display:inline-block;margin-top:4px;color:var(--teal-deep);font-size:13px;font-weight:700}
+
+#five-star-fest{scroll-margin-top:84px}
+.def-card a{color:var(--teal-deep);text-underline-offset:3px}
 </style>
 </head>
 <body>
@@ -311,7 +311,7 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
     <p class="lead">Community Hospital Japan（CHJ）は、外来での疾病予防から入院診療、退院後の在宅医療まで——より包括的に、より継続的に医療とケアを提供する「コミュニティホスピタル」の全国ネットワークです。</p>
     <div class="hero-stats">
       <div class="stat"><div class="v num" id="stat-total">—</div><div class="l">CHマップ掲載病院</div></div>
-      <a class="stat stat-sns" href="#official-sns"><div class="v num">—</div><div class="l">SNSフォロワー</div><div class="stat-link">公式SNSを見る →</div></a>
+      <a class="stat stat-sns" href="#official-sns"><div class="v num">633<small>人</small></div><div class="l">SNSフォロワー</div><div class="stat-link">公式SNSを見る →</div></a>
     </div>
   </div>
   <svg class="hero-cross" width="420" height="420" viewBox="0 0 29 42" aria-hidden="true">
@@ -330,7 +330,7 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
     <div class="sec-head">
       <span class="en">Hospitals across Japan</span>
       <h2>全国のコミュニティホスピタル</h2>
-      <p>地図または地域名を選び、施設名を押すと所在地や公式サイトを確認できます。CHJ理事の所属や運営への関与を確認できた病院を掲載しています。</p>
+      <p>地図または地域名を選び、病院名を押すと所在地や公式サイトを確認できます。</p>
     </div>
 
     <div class="legend" id="legend" role="group" aria-label="地域を選択（数字は掲載病院数）"></div>
@@ -390,7 +390,7 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
     </div>
     <div class="about-grid">
       <div class="def-card"><div class="def-ico">🗾</div><div><h3>ネットワークの可視化</h3><p>全国のCHを掲載した「CHマップ」の運営</p></div></div>
-      <div class="def-card"><div class="def-ico">🤝</div><div><h3>学びと交流の場</h3><p>サミット・セミナーの開催、ファイブスターフェスの企画</p></div></div>
+      <div class="def-card"><div class="def-ico">🤝</div><div><h3>学びと交流の場</h3><p>サミット・セミナーの開催、<a href="#five-star-fest">ファイブスターフェス</a>の企画</p></div></div>
       <div class="def-card"><div class="def-ico">📈</div><div><h3>専門性と経営の支援</h3><p>医療機関の運営・経営や、新しい商品・サービスの開発に関する助言</p></div></div>
       <div class="def-card"><div class="def-ico">📚</div><div><h3>専攻医プログラム支援事業</h3><p>総合診療の専攻医を育てる研修プログラムの企画・運営を支援します。</p></div></div>
     </div>
@@ -428,10 +428,21 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
           <ul><li><time datetime="2026-10-20">2026年10月20日</time><strong>英国のコミュニティホスピタルから、これからの日本の地域医療を考える</strong><p>英国視察・CHAカンファレンス2026の参加報告会。</p><a href="https://peatix.com/event/5210937/view" target="_blank" rel="noopener noreferrer">当時の開催案内 ↗</a></li></ul>
         </details>
       </article>
-      <article class="event-card">
+      <article class="event-card" id="five-star-fest">
         <div class="event-tag">現地交流</div>
-        <h3>ファイブスターフェス（FSフェス）</h3>
+        <h3>ファイブスターフェス</h3>
         <p>病院を訪ね、地域医療や総合診療医の育成について、現地で学び合う企画です。</p>
+        <details class="event-archive">
+          <summary>過去の告知を見る</summary>
+          <ul>
+            <li>
+              <time datetime="2026-08-11">2026年8月11日 開催予定分</time>
+              <strong>Five Star Fest. 2026（熊本）</strong>
+              <p>開催延期</p>
+              <a href="https://note.com/kumamoto_iryo/n/ndac73b49bd9e" target="_blank" rel="noopener noreferrer">主催者の告知 ↗</a>
+            </li>
+          </ul>
+        </details>
       </article>
     </div>
     <div class="event-media" id="official-sns" aria-label="CHJ公式SNS">
@@ -490,7 +501,6 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
 
 <script>
 /* CHマップ掲載データ。会員・掲載契約の有無は集計しない。 */
-const FACILITY_GROUPS = {director:"理事関連病院"};
 const REGION_DATA = {
   hokkaido: {label:"北海道", color:"#E0635B", hospitals:[], relatedFacilities:[]},
   tohoku: {label:"東北", color:"#F2BE45", hospitals:[], relatedFacilities:[]},
@@ -498,44 +508,43 @@ const REGION_DATA = {
   hokushinetsu: {label:"北陸甲信越", color:"#EE7F2D", hospitals:[], relatedFacilities:[]},
   tokai: {label:"東海", color:"#3FB9C9", hospitals:[
       {name:"掛川東病院", pref:"静岡県", desc:"回復期リハビリテーション・地域包括ケア・医療療養の病棟を備え、訪問診療で退院後の暮らしを支えます。介護医療院と介護老人保健施設を併設。掛川市と連携し、地域で健康講座などにも取り組んでいます。", url:"https://www.kakegawa-higashi.com/",
-        sns:[{label:"Instagram", url:"https://www.instagram.com/kakegawa_east_hospital/"}, {label:"病院公式の動画一覧", url:"https://www.kakegawa-higashi.com/about/movie/"}, {label:"地域での取り組み", url:"https://www.kakegawa-higashi.com/community_hospital/"}],
+        youtube:"https://www.youtube-nocookie.com/embed/YwW2TGDAudk",
+        sns:[{label:"YouTubeで見る", url:"https://www.youtube.com/watch?v=YwW2TGDAudk"}, {label:"Instagram", url:"https://www.instagram.com/kakegawa_east_hospital/"}, {label:"病院公式の動画一覧", url:"https://www.kakegawa-higashi.com/about/movie/"}, {label:"地域での取り組み", url:"https://www.kakegawa-higashi.com/community_hospital/"}],
         features:["ward","home","outpatient","rehab","care"],
-        address:"静岡県掛川市杉谷南1丁目1-1", group:"director"},
-      {name:"藤田医科大学病院", pref:"愛知県", address:"愛知県豊明市沓掛町田楽ケ窪1番地98", group:"director",
-        desc:"高度救命救急センターを備える特定機能病院。重症救急に対応し、地域の医療機関と連携して入退院や療養を支援します。", url:"https://hospital.fujita-hu.ac.jp/",
-        sns:[{label:"YouTube", url:"https://www.youtube.com/@fujitahu-h"}, {label:"公式LINE", url:"https://liff.line.me/1645278921-kWRPP32q/?accountId=078fcjlh"}]},
-      {name:"藤田医科大学ばんたね病院", pref:"愛知県", address:"愛知県名古屋市中川区尾頭橋三丁目6番10号", group:"director",
-        desc:"名古屋市中川区の総合病院。総合診療科は臓器を限定せず診療し、大学の教育病院として医療人材を育てています。", url:"https://bantane.fujita-hu.ac.jp/",
-        sns:[{label:"Instagram", url:"https://www.instagram.com/fhu_bantane/"}]},
-      {name:"藤田医科大学岡崎医療センター", pref:"愛知県", address:"愛知県岡崎市針崎西2丁目6番地1", group:"director",
-        desc:"西三河の地域で24時間365日の二次救急を担い、総合診療科を備えています。", url:"https://okazaki.fujita-hu.ac.jp/",
-        sns:[{label:"Instagram", url:"https://www.instagram.com/fhu_okazaki/"}, {label:"医師紹介動画（YouTube）", url:"https://www.youtube.com/playlist?list=PLqwmU0qxmjW0grsQLT405dFdE5p1dlpTz"}]},
-      {name:"紘仁病院", pref:"愛知県", address:"愛知県名古屋市守山区四軒家一丁目710番地", group:"director",
+        address:"静岡県掛川市杉谷南1丁目1-1"},
+      {name:"豊田地域医療センター", pref:"愛知県", address:"愛知県豊田市西山町3丁目30番地1",
+        desc:"総合診療を軸に、外来・入院、訪問診療、リハビリテーションをつなぐ病院です。", url:"https://www.toyotachiiki-mc.or.jp/",
+        features:["ward","home","outpatient","rehab","care"],
+        youtube:"https://www.youtube-nocookie.com/embed/Crw01Q814uM",
+        sns:[{label:"YouTube", url:"https://www.youtube.com/@toyotachiiki"},
+             {label:"Instagram", url:"https://www.instagram.com/trmc_kouhou/"},
+             {label:"公式LINE", url:"https://lin.ee/K7D8Ci5"}]},
+      {name:"紘仁病院", pref:"愛知県", address:"愛知県名古屋市守山区四軒家一丁目710番地",
         desc:"医療法人香流会が運営する、精神科を中心に内科・外科などを備える病院です。", url:"https://koujin-hospital.jp/"}
     ], relatedFacilities:[]},
   kansai: {label:"関西", color:"#7E9FE8", hospitals:[
-      {name:"川崎病院", pref:"兵庫県", address:"兵庫県神戸市兵庫区東山町3-3-1", group:"director",
+      {name:"川崎病院", pref:"兵庫県", address:"兵庫県神戸市兵庫区東山町3-3-1",
         desc:"神戸市兵庫区の二次救急病院。総合診療科を備え、院内の取り組み「川崎救急」を通じて在宅・施設と病院の連携を進めています。", url:"https://www.kawasaki-hospital-kobe.or.jp/",
         sns:[{label:"Instagram", url:"https://www.instagram.com/kobe_kawasakihp_pr/"}]}
     ], relatedFacilities:[]},
   chugoku: {label:"中国", color:"#F2968D", hospitals:[
       {name:"光輝病院", pref:"山口県", desc:"山口県平生町の病院。医療と介護が一体となったコミュニティホスピタルとして、病院・介護医療院・在宅医療を通じて地域の暮らしを支えています。", url:"https://koukikai-group.or.jp/",
         features:["ward","home","outpatient","rehab","care"],
-        address:"山口県熊毛郡平生町大字佐賀10002-77", group:"director"}
+        address:"山口県熊毛郡平生町大字佐賀10002-77"}
     ], relatedFacilities:[]},
   shikoku: {label:"四国", color:"#C9CFD4", hospitals:[], relatedFacilities:[]},
   kyushu: {label:"九州", color:"#7FC97E", hospitals:[
       {name:"頴田病院", pref:"福岡県", desc:"日本で初めて「コミュニティホスピタル」と定義された病院。CHJ発祥の地として、総合診療・在宅医療を実践。YouTube「かいたラジオ」で地域医療について発信しています。", url:"https://www.kaita-hospital.jp/",
-        features:["ward","home","outpatient","social"],
+        features:["ward","home","outpatient"],
         youtube:"https://www.youtube-nocookie.com/embed/videoseries?list=UU04UCjHYeLEFht1hvNlaIkg",
         sns:[
           {label:"かいたラジオ（YouTube）", url:"https://www.youtube.com/@kaitaradio"},
           {label:"公式LINE", url:"https://lin.ee/3x7yigs"},
           {label:"ブログ", url:"https://ameblo.jp/kaitahp/"}
         ],
-        address:"福岡県飯塚市口原1061-1", group:"director"},
+        address:"福岡県飯塚市口原1061-1"},
       {name:"谷田病院", pref:"熊本県", desc:"熊本県甲佐町の内科・総合診療科・コミュニティホスピタル。YouTube「やつだチャンネル」をはじめSNSで積極的に情報発信しています。", url:"https://www.yatsuda-kai.jp/",
-        features:["ward","home","outpatient","social","agri"],
+        features:["ward","home","outpatient","agri"],
         youtube:"https://www.youtube-nocookie.com/embed/IQVh_nOhuaU",
         sns:[
           {label:"YouTube", url:"https://www.youtube.com/@yatsuda"},
@@ -545,7 +554,7 @@ const REGION_DATA = {
           {label:"Facebook", url:"https://www.facebook.com/yatsuda.hp/"},
           {label:"公式LINE", url:"https://lin.ee/npiR3RT"}
         ],
-        address:"熊本県上益城郡甲佐町岩下123", group:"director"}
+        address:"熊本県上益城郡甲佐町岩下123"}
     ], relatedFacilities:[]}
 };
 
@@ -554,7 +563,6 @@ const FEATURES = {
   ward:       {label:"病棟",     color:"#3FA9D6", svg:'<path d="M4 21V8l8-5 8 5v13h-5v-6H9v6H4z"/>'},
   home:       {label:"在宅",     color:"#3DB57A", svg:'<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-9z"/>'},
   outpatient: {label:"外来",     color:"#F2A33C", svg:'<path d="M12 2a3 3 0 0 1 3 3v2h2a3 3 0 0 1 3 3 5 5 0 0 1-5 5h-1v2a3 3 0 1 1-6 0v-1a4 4 0 0 1-4-4V8a3 3 0 0 1 3-3h2V5a3 3 0 0 1 3-3z"/>'},
-  social:     {label:"社会的処方", color:"#E36C9E", svg:'<path d="M12 21s-7-4.5-9.5-9A5.2 5.2 0 0 1 12 6a5.2 5.2 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/>'},
   agri:       {label:"農業",     color:"#7CB342", svg:'<path d="M12 22c5-1 8-5 8-10 0-1-1-2-2-2-3 0-5 2-6 5 0-4 2-8 6-10-6 0-10 4-11 9-1-1-2-2-3-2-1 0-2 1-2 2 0 5 3 9 8 8z"/>'},
   rehab:      {label:"リハビリ",  color:"#8E6FD1", svg:'<path d="M13 3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM7 22l2-7-2-2V8l5-2 4 3 3 1-1 2-3-1-2-1v3l3 3v6h-2v-5l-3-2-2 6H7z"/>'},
   pediatric:  {label:"小児",     color:"#F2785C", svg:'<path d="M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0H4z"/>'},
@@ -648,7 +656,7 @@ function selectRegion(region){
 function renderFacility(h){
   return `
       <details class="hosp">
-        <summary class="facility-toggle"><span class="facility-name">${h.name}</span><span class="pref">${h.pref}</span>
+        <summary class="facility-toggle"><span class="facility-name">${h.name}</span><span class="pref">${h.pref}</span></summary>
           ${h.group ? `<span class="facility-badge" data-kind="${h.group}">${FACILITY_GROUPS[h.group]}</span>` : ''}
           ${h.kind ? `<span class="facility-badge" data-kind="related">${h.kind}</span>` : ''}</summary>
         <div class="facility-address"><b>所在地</b> ${h.address}</div>
