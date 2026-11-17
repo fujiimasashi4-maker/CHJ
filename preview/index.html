@@ -277,6 +277,15 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
 .event-notice h3{margin:0 0 6px;color:var(--teal-deep);font-size:14px}
 .event-notice p{margin:0;color:var(--ink-60);font-size:14px}
 .event-notice .event-notice-title{margin-bottom:4px;color:var(--ink);font-size:17px;font-weight:700}
+.event-notice .event-notice-subtitle{margin-bottom:8px;font-weight:700}
+.event-program{margin-top:14px;border-radius:12px;background:#fff}
+.event-program summary{padding:12px 15px;cursor:pointer;font-size:14px;font-weight:700;color:var(--teal-deep)}
+.event-program ul{list-style:none;margin:0;padding:0 15px}
+.event-program li{display:grid;grid-template-columns:8.5em minmax(0,1fr);gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.event-program-time{font-size:13px;font-weight:700;color:var(--teal-deep)}
+.event-program li strong{font-size:14px}
+.event-program .event-program-hosts{margin:0;padding:4px 15px 14px;font-size:12px}
+@media(max-width:520px){.event-program li{grid-template-columns:1fr;gap:2px}}
 .event-list{align-items:start}
 .event-archive{margin-top:16px;padding:12px 14px;border-radius:12px;background:var(--teal-soft)}
 .event-archive summary{cursor:pointer;font-weight:700;color:var(--teal-deep);font-size:14px}
@@ -410,8 +419,32 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
     </div>
     <div class="event-notice" id="event-news" aria-labelledby="event-news-heading">
       <h3 id="event-news-heading">お知らせ</h3>
-      <p class="event-notice-title">ファイブスターフェス in 芦屋中央</p>
-      <p><time datetime="2026-12-12">2026年12月12日（土）</time>に芦屋中央病院（福岡県遠賀郡芦屋町）で開催予定です。参加は招待制です。</p>
+      <p class="event-notice-title">ファイブスターフェス in 芦屋中央病院</p>
+      <p class="event-notice-subtitle">地域と病院と総合診療の未来を語ろう</p>
+      <p><time datetime="2026-12-12">2026年12月12日（土）</time> 13:30〜17:00｜芦屋中央病院（福岡県遠賀郡芦屋町）</p>
+      <p>招待制・参加費無料。オンライン配信を予定しています。</p>
+      <details class="event-program">
+        <summary>チラシのプログラムを見る</summary>
+        <ul>
+          <li>
+            <span class="event-program-time">13:30〜14:30</span>
+            <div><strong>ホスト病院の発表</strong><p>「芦屋中央病院の道のりとこれから」／芦屋中央病院 理事長・病院長 櫻井 俊弘</p></div>
+          </li>
+          <li>
+            <span class="event-program-time">14:30〜15:30</span>
+            <div><strong>講座・質疑応答</strong><p>「コミュニティホスピタルとその医局づくり」／頴田病院 院長 本田 宜久、副院長 吉田 伸</p></div>
+          </li>
+          <li>
+            <span class="event-program-time">15:30〜17:00</span>
+            <div><strong>地域ツアー</strong><p>芦屋中央病院から芦屋釜の里へ。定員があります。</p></div>
+          </li>
+          <li>
+            <span class="event-program-time">終了後</span>
+            <div><strong>懇親会</strong><p>定員があります。</p></div>
+          </li>
+        </ul>
+        <p class="event-program-hosts">主催　芦屋中央病院・コミュニティホスピタルジャパン</p>
+      </details>
     </div>
     <div class="event-list">
       <article class="event-card">
