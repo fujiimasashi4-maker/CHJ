@@ -116,9 +116,9 @@ async function submit(fixture, fields = {}, headers = {}) {
   return result.id;
 }
 
-async function moderate(fixture, id, status) {
+async function moderate(fixture, id, status, expectations = {}) {
   return fixture.worker.fetch(adminRequest(`/api/admin/comments/${id}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }),
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status, ...expectations }),
   }), fixture.env);
 }
 
@@ -261,7 +261,9 @@ test('valid Access RS256 token authorizes moderation and the admin photo route',
   assert.equal(adminPhoto.status, 200);
   assert.equal(adminPhoto.headers.get('Content-Type'), 'image/png');
   assert.deepEqual(new Uint8Array(await adminPhoto.arrayBuffer()), PNG);
-  assert.deepEqual(await (await moderate(fixture, id, 'approved')).json(), { id, status: 'approved' });
+  assert.deepEqual(await (await moderate(fixture, id, 'approved')).json(), {
+    id, status: 'approved', moderated_at: '2026-11-20T12:00:00.000Z',
+  });
   const publicList = await fixture.worker.fetch(new Request(`${ORIGIN}/api/comments?news=${NEWS}`), fixture.env);
   assert.deepEqual(await publicList.json(), {
     comments: [{ id, name: 'Visitor', comment: 'A real comment', created_at: new Date(START).toISOString(), photo_url: `/api/photos/${id}` }],
@@ -275,6 +277,92 @@ test('valid Access RS256 token authorizes moderation and the admin photo route',
   await moderate(fixture, id, 'rejected');
   assert.equal((await fixture.worker.fetch(new Request(`${ORIGIN}/api/photos/${id}`), fixture.env)).status, 404);
   assert.deepEqual((await (await fixture.worker.fetch(new Request(`${ORIGIN}/api/comments?news=${NEWS}`), fixture.env)).json()).comments, []);
+});
+
+test('admin counts cover every status and page while review metadata stays private', async () => {
+  const fixture = setup();
+  const empty = await (await fixture.worker.fetch(adminRequest(), fixture.env)).json();
+  assert.deepEqual(empty.counts, { pending: 0, approved: 0, rejected: 0, total: 0 });
+  const insert = fixture.db.sqlite.prepare('INSERT INTO comments (id,news,name,comment,status,created_at,moderated_at) VALUES (?,?,?,?,?,?,?)');
+  for (const [index, status, reviewed] of [
+    [0, 'pending', null], [1, 'pending', null], [2, 'approved', START + 10], [3, 'rejected', START + 20],
+  ]) insert.run(crypto.randomUUID(), NEWS, 'Visitor', `Comment ${index}`, status, START + index, reviewed);
+  const first = await (await fixture.worker.fetch(adminRequest('/api/admin/comments?status=pending&limit=1'), fixture.env)).json();
+  assert.deepEqual(first.counts, { pending: 2, approved: 1, rejected: 1, total: 4 });
+  assert.equal(first.comments.length, 1);
+  assert.equal(first.comments[0].news, NEWS);
+  assert.equal(first.comments[0].moderated_at, null);
+  assert.equal(typeof first.next_cursor, 'string');
+  const second = await (await fixture.worker.fetch(adminRequest(`/api/admin/comments?status=pending&limit=1&cursor=${first.next_cursor}`), fixture.env)).json();
+  assert.deepEqual(second.counts, { pending: 2, approved: 1, rejected: 1, total: 4 });
+  assert.equal(second.comments.length, 1);
+  assert.notEqual(first.comments[0].id, second.comments[0].id);
+  const reviewed = await (await fixture.worker.fetch(adminRequest('/api/admin/comments?status=approved'), fixture.env)).json();
+  assert.equal(reviewed.comments[0].moderated_at, '2026-11-20T12:00:00.010Z');
+  const publicData = await (await fixture.worker.fetch(new Request(`${ORIGIN}/api/comments?news=${NEWS}`), fixture.env)).json();
+  assert.equal('counts' in publicData, false);
+  assert.equal('news' in publicData.comments[0], false);
+  assert.equal('moderated_at' in publicData.comments[0], false);
+  assert.equal('status' in publicData.comments[0], false);
+});
+
+test('expected review state rejects stale decisions even after the status returns to its earlier value', async () => {
+  const fixture = setup();
+  const id = await submit(fixture);
+  const pending = { expected_status: 'pending', expected_moderated_at: null };
+  const approved = await (await moderate(fixture, id, 'approved', pending)).json();
+  assert.deepEqual(approved, { id, status: 'approved', moderated_at: '2026-11-20T12:00:00.000Z' });
+  const rejected = await (await moderate(fixture, id, 'rejected', {
+    expected_status: 'approved', expected_moderated_at: approved.moderated_at,
+  })).json();
+  assert.deepEqual(rejected, { id, status: 'rejected', moderated_at: '2026-11-20T12:00:00.001Z' });
+  const restored = await (await moderate(fixture, id, 'approved', {
+    expected_status: 'rejected', expected_moderated_at: rejected.moderated_at,
+  })).json();
+  assert.equal(restored.moderated_at, '2026-11-20T12:00:00.002Z');
+  for (const expectation of [pending, { expected_status: 'approved', expected_moderated_at: approved.moderated_at }]) {
+    const conflict = await moderate(fixture, id, 'rejected', expectation);
+    assert.equal(conflict.status, 409);
+    assert.deepEqual(await conflict.json(), { error: 'state_conflict' });
+  }
+  assert.deepEqual(fixture.db.sqlite.prepare('SELECT status, moderated_at FROM comments WHERE id=?').get(id),
+    Object.assign(Object.create(null), { status: 'approved', moderated_at: START + 2 }));
+  const missing = await moderate(fixture, '00000000-0000-4000-8000-000000000000', 'approved', pending);
+  assert.equal(missing.status, 404);
+});
+
+test('only one competing review of the same snapshot can be saved', async () => {
+  const fixture = setup();
+  const id = await submit(fixture);
+  const expectations = { expected_status: 'pending', expected_moderated_at: null };
+  const responses = await Promise.all(['approved', 'rejected'].map(status => moderate(fixture, id, status, expectations)));
+  assert.deepEqual(responses.map(response => response.status).sort(), [200, 409]);
+  const saved = await responses.find(response => response.status === 200).json();
+  const row = fixture.db.sqlite.prepare('SELECT status, moderated_at FROM comments WHERE id=?').get(id);
+  assert.equal(row.status, saved.status);
+  assert.equal(row.moderated_at, START);
+});
+
+test('malformed or partial review expectations cannot update the comment', async () => {
+  const fixture = setup();
+  const id = await submit(fixture);
+  for (const expectations of [
+    { expected_status: 'pending' }, { expected_moderated_at: null },
+    { expected_status: 'unknown', expected_moderated_at: null },
+    { expected_status: null, expected_moderated_at: null },
+    ...[START, false, {}, [], '', 'not-a-date', '2026-11-31T12:00:00.000Z'].map(expected_moderated_at => ({
+      expected_status: 'pending', expected_moderated_at,
+    })),
+  ]) {
+    const response = await moderate(fixture, id, 'approved', expectations);
+    assert.equal(response.status, 400, JSON.stringify(expectations));
+    assert.deepEqual(await response.json(), { error: 'invalid_expectation' });
+  }
+  assert.equal(fixture.db.sqlite.prepare('SELECT status FROM comments WHERE id=?').get(id).status, 'pending');
+  // Older clients may still send only status.
+  const legacy = await moderate(fixture, id, 'approved');
+  assert.equal(legacy.status, 200);
+  assert.equal((await legacy.json()).moderated_at, '2026-11-20T12:00:00.000Z');
 });
 
 test('forged Access headers cannot replace a verified JWT', async () => {
@@ -334,7 +422,9 @@ test('Workers-compatible certificate fetching accepts a valid administrator', as
   });
   const response = await worker.fetch(adminRequest(), fixture.env);
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { comments: [], next_cursor: null });
+  assert.deepEqual(await response.json(), {
+    comments: [], next_cursor: null, counts: { pending: 0, approved: 0, rejected: 0, total: 0 },
+  });
   assert.deepEqual(requests, [{
     url: 'https://chj-test.cloudflareaccess.com/cdn-cgi/access/certs',
     redirect: 'manual',

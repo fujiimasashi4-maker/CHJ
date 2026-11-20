@@ -1,49 +1,89 @@
-const status=document.getElementById('admin-status');
-const list=document.getElementById('moderation-list');
-const filter=document.getElementById('review-status');
-const refresh=document.getElementById('refresh');
-const more=document.getElementById('admin-more');
-let cursor=null,busy=false;
-function el(tag,text){const node=document.createElement(tag);if(text)node.textContent=text;return node;}
-async function fetchTimed(url,options={}){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),25000);try{return await fetch(url,{...options,signal:controller.signal});}finally{clearTimeout(timer);}}
-function controls(disabled){busy=disabled;filter.disabled=disabled;refresh.disabled=disabled;more.disabled=disabled;list.querySelectorAll('button').forEach(button=>button.disabled=disabled);}
-async function load(append=false){
-  if(busy)return;controls(true);status.textContent='読み込んでいます…';
-  try{
-    const params=new URLSearchParams({status:filter.value,limit:'20'});if(append&&cursor)params.set('cursor',cursor);
-    const response=await fetchTimed('/api/admin/comments?'+params,{headers:{Accept:'application/json'},cache:'no-store'});
-    if(!response.ok)throw new Error('認証または設定を確認してください。');
-    const data=await response.json();if(!Array.isArray(data.comments))throw new Error('管理者ログインが必要です。');
-    if(!append)list.replaceChildren();
-    for(const comment of data.comments)render(comment);
-    cursor=data.next_cursor||null;more.hidden=!cursor;
-    status.textContent=list.children.length?'':'該当する投稿はありません。';
-  }catch(error){status.textContent='管理画面を読み込めません。Cloudflare Accessの管理者ログインと接続設定を確認し、再読み込みしてください。';}
-  finally{controls(false);}
+const byId=id=>document.getElementById(id);
+const status=byId('admin-status'),list=byId('moderation-list'),filter=byId('review-status'),refresh=byId('refresh'),more=byId('admin-more');
+const dialog=byId('review-dialog'),dialogBody=byId('review-body'),dialogMessage=byId('review-message'),confirmButton=byId('review-confirm'),cancelButton=byId('review-cancel');
+const labels={pending:'確認待ち',approved:'公開済み',rejected:'非公開'};
+const news={ 'fsf-ashiya-2026-12-12':{title:'ファイブスターフェス in 芦屋中央病院',href:'/#events'} };
+let cursor=null,busy=false,review=null;
+function el(tag,text){const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);return node;}
+function dateText(value){const date=new Date(value);return value&&!Number.isNaN(date.getTime())?new Intl.DateTimeFormat('ja-JP',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Tokyo'}).format(date):'未処理';}
+async function fetchTimed(url,options={}){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),25000);try{return await fetch(url,{...options,signal:controller.signal,cache:'no-store',credentials:'same-origin'});}finally{clearTimeout(timer);}}
+async function readJSON(response){if(response.status===401||response.status===403||!/^application\/json\b/i.test(response.headers.get('content-type')||''))throw new Error('login');if(!response.ok)throw new Error('request');return response.json();}
+function controls(disabled){
+ busy=disabled;filter.disabled=disabled;refresh.disabled=disabled;more.disabled=disabled;
+ for(const key of Object.keys(labels))byId('count-'+key).disabled=disabled;
+ list.querySelectorAll('button').forEach(button=>button.disabled=disabled);
+ cancelButton.disabled=disabled;confirmButton.disabled=disabled||!review||review.stale||(review.value==='approved'&&!review.photoReady);
+}
+function setCounts(counts){for(const key of Object.keys(labels))byId(key+'-count').textContent=counts?String(counts[key]):'—';}
+async function load(append=false,notice=''){
+ if(busy||dialog.open)return;controls(true);status.textContent='読み込んでいます…';byId('login-help').hidden=true;
+ if(!append){list.replaceChildren();cursor=null;more.hidden=true;}
+ try{
+  const params=new URLSearchParams({status:filter.value,limit:'20'});if(append&&cursor)params.set('cursor',cursor);
+  const data=await readJSON(await fetchTimed('/api/admin/comments?'+params,{headers:{Accept:'application/json'}}));
+  if(!Array.isArray(data.comments)||!data.counts||Object.keys(labels).some(k=>!Number.isSafeInteger(data.counts[k])||data.counts[k]<0))throw new Error('response');
+  const seen=new Set(Array.from(list.children,card=>card.dataset.id));
+  for(const comment of data.comments)if(!seen.has(comment.id)){render(comment);seen.add(comment.id);}
+  cursor=data.next_cursor||null;more.hidden=!cursor;setCounts(data.counts);
+  byId('last-updated').textContent='最終更新：'+dateText(new Date().toISOString())+'（日本時間）';
+  status.textContent=notice||(list.children.length?labels[filter.value]+' '+data.counts[filter.value]+'件のうち '+list.children.length+'件を表示しています。':'該当する投稿はありません。');
+ }catch(error){
+  if(!append)setCounts(null);
+  status.textContent=(notice?notice+' ただし一覧を更新できませんでした。':'管理画面を読み込めません。')+' 接続を確認して再読み込みしてください。ログインの有効期限が切れている場合はログインし直してください。';
+  byId('login-help').hidden=false;
+ }finally{controls(false);}
+}
+function photoURL(comment){try{const url=new URL(comment.photo_url,location.origin);return url.origin===location.origin&&/^\/api\/admin\/photos\/[a-zA-Z0-9-]+$/.test(url.pathname)?url.href:null;}catch{return null;}}
+function content(comment,forReview=false){
+ const section=el('section');const header=el('header');header.append(el('strong',comment.name),el('span',labels[comment.status]||'不明'));
+ const context=news[comment.news];const subject=el('p');subject.className='post-context';const link=el('a',context?.title||'ニュースへの投稿');link.href=context?.href||'/#events';link.target='_blank';link.rel='noopener';subject.append(link);
+ const dates=el('p','受付：'+dateText(comment.created_at)+' ／ 最終処理：'+dateText(comment.moderated_at));dates.className='post-meta';
+ const text=el('p',comment.comment||'（コメントなし・写真のみ）');text.className='post-text';
+ section.append(header,subject,dates,text);
+ if(comment.photo_url){
+  const url=photoURL(comment);
+  if(url){const link=el('a');link.href=url;link.target='_blank';link.rel='noopener';link.setAttribute('aria-label','写真を別のタブで拡大');const image=el('img');image.alt='投稿された写真（運営者の確認用）';image.loading=forReview?'eager':'lazy';
+   if(forReview){const current=review;const loaded=()=>{if(review===current){review.photoReady=true;dialogMessage.textContent='本文と写真を確認してから確定してください。';controls(busy);}};image.addEventListener('load',loaded);image.addEventListener('error',()=>{if(review===current){review.photoReady=false;dialogMessage.textContent='写真を読み込めません。閉じて再読み込み、またはログインし直してから写真を確認してください。';controls(busy);}});image.src=url;if(image.complete&&image.naturalWidth>0)loaded();}else image.src=url;
+   link.append(image);section.append(link,el('p','写真を押すと別のタブで拡大できます。'));
+  }else if(forReview){dialogMessage.textContent='写真のURLを確認できません。公開せず、再読み込みしてください。';}
+ }
+ const id=el('p','投稿ID：'+comment.id);id.className='post-id';section.append(id);return section;
+}
+function openReview(comment,value){
+ if(busy||dialog.open)return;
+ review={comment,value,stale:false,photoReady:!comment.photo_url};
+ byId('review-title').textContent=value==='approved'?'公開する内容の確認':'非公開にする投稿の確認';
+ dialogMessage.textContent=value==='approved'?'表示名・本文・写真が日本語版と英語版の両方に公開されます。内容を確認して確定してください。':'この投稿はサイトに表示されなくなります。後から再公開できます。';
+ confirmButton.textContent=value==='approved'?'この内容で公開する':'非公開にする';
+ dialogBody.replaceChildren(content(comment,true));dialog.showModal();controls(false);cancelButton.focus();
 }
 function render(comment){
-  const card=el('article');card.className='moderation-card';
-  const header=el('header');header.append(el('strong',comment.name));
-  const date=new Date(comment.created_at);if(!Number.isNaN(date.getTime())){const time=el('time',new Intl.DateTimeFormat('ja-JP',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Tokyo'}).format(date));time.dateTime=date.toISOString();header.append(time);}
-  card.append(header,el('p',comment.comment));
-  if(comment.photo_url){const url=new URL(comment.photo_url,location.origin);if(url.origin===location.origin&&/^\/api\/admin\/photos\/[a-zA-Z0-9-]+$/.test(url.pathname)){const link=el('a');link.href=url.href;link.target='_blank';link.rel='noopener';const image=el('img');image.src=url.href;image.alt='投稿された写真（公開前の確認用）';image.loading='lazy';link.append(image);card.append(link);}}
-  const buttons=el('footer');
-  for(const [value,label] of [['approved','公開する'],['rejected','非公開にする']]){
-    if(comment.status===value)continue;
-    const button=el('button',label);button.type='button';if(value==='rejected')button.className='reject';
-    button.addEventListener('click',async()=>{
-      if(busy)return;controls(true);status.textContent='保存しています…';
-      try{
-        const response=await fetchTimed('/api/admin/comments/'+encodeURIComponent(comment.id),{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({status:value})});
-        if(!response.ok)throw new Error('failed');
-        const saved=await response.json();
-        if(saved.id!==comment.id||saved.status!==value)throw new Error('failed');
-        card.remove();status.textContent=value==='approved'?'公開しました。日本語版・英語版のニュースに表示されます。':'非公開にしました。';
-      }catch{status.textContent='保存できませんでした。再読み込みして状態を確認してください。';}
-      finally{controls(false);}
-    });buttons.append(button);
-  }
-  card.append(buttons);list.append(card);
+ const card=el('article');card.className='moderation-card';card.dataset.id=comment.id;card.append(content(comment));
+ const buttons=el('footer');
+ for(const [value,label] of [['approved','確認して公開'],['rejected','非公開にする']]){
+  if(comment.status===value)continue;
+  const button=el('button',label);button.type='button';if(value==='rejected')button.className='reject';button.addEventListener('click',()=>openReview(comment,value));buttons.append(button);
+ }
+ card.append(buttons);list.append(card);
 }
+confirmButton.addEventListener('click',async()=>{
+ if(busy||!review||review.stale||(review.value==='approved'&&!review.photoReady))return;
+ const current=review;controls(true);dialogMessage.textContent='保存しています…';
+ try{
+  const response=await fetchTimed('/api/admin/comments/'+encodeURIComponent(current.comment.id),{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify({status:current.value,expected_status:current.comment.status,expected_moderated_at:current.comment.moderated_at??null})});
+  if(response.status===409){current.stale=true;dialogMessage.textContent='別の画面でこの投稿の状態が更新されました。閉じて一覧を再読み込みし、最新の内容を確認してください。';return;}
+  const saved=await readJSON(response);
+  if(saved.id!==current.comment.id||saved.status!==current.value||typeof saved.moderated_at!=='string')throw new Error('response');
+  const notice=current.value==='approved'?'公開しました。日本語版・英語版のニュースに表示されます。':'非公開にしました。';
+  dialog.close();controls(false);await load(false,notice);
+ }catch(error){
+  current.stale=true;dialogMessage.textContent=error.message==='login'?'ログインの有効期限が切れた可能性があります。閉じてログインし直し、一覧で保存結果を確認してください。':'保存結果を確認できません。閉じて一覧を再読み込みし、状態を確認してください。';byId('login-help').hidden=false;
+ }finally{controls(false);}
+});
+cancelButton.addEventListener('click',()=>{if(!busy)dialog.close();});
+dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
+dialog.addEventListener('close',()=>{review=null;});
 filter.addEventListener('change',()=>load());refresh.addEventListener('click',()=>load());more.addEventListener('click',()=>load(true));
+for(const key of Object.keys(labels))byId('count-'+key).addEventListener('click',()=>{filter.value=key;return load();});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!busy&&!dialog.open)load();});
 load();

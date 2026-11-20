@@ -238,7 +238,7 @@ async function listComments(request, env, admin = false) {
   if (!['pending', 'approved', 'rejected'].includes(status)) throw new ApiError(400, 'invalid_status');
   const { limit, timestamp, id } = pagination(url);
   const result = await database.prepare(`
-    SELECT id, name, comment, created_at, status, photo_mime
+    SELECT id, name, comment, created_at, status, photo_mime${admin ? ', moderated_at' : ''}
     FROM comments WHERE news = ?1 AND status = ?2
       AND (created_at < ?3 OR (created_at = ?3 AND id < ?4))
     ORDER BY created_at DESC, id DESC LIMIT ?5
@@ -246,7 +246,11 @@ async function listComments(request, env, admin = false) {
   const comments = result.results.map(row => {
     const item = { id: row.id, name: row.name, comment: row.comment, created_at: new Date(row.created_at).toISOString() };
     if (row.photo_mime) item.photo_url = `${admin ? '/api/admin/photos/' : '/api/photos/'}${row.id}`;
-    if (admin) item.status = row.status;
+    if (admin) {
+      item.status = row.status;
+      item.news = NEWS_ID;
+      item.moderated_at = row.moderated_at === null ? null : new Date(row.moderated_at).toISOString();
+    }
     return item;
   });
   let nextCursor = null;
@@ -258,7 +262,18 @@ async function listComments(request, env, admin = false) {
     `).bind(NEWS_ID, status, last.created_at, last.id).first();
     if (more) nextCursor = base64url(encoder.encode(JSON.stringify([last.created_at, last.id])));
   }
-  return json({ comments, next_cursor: nextCursor });
+  const response = { comments, next_cursor: nextCursor };
+  if (admin) {
+    const counts = { pending: 0, approved: 0, rejected: 0, total: 0 };
+    const totals = await database.prepare('SELECT status, COUNT(*) AS count FROM comments WHERE news = ?1 GROUP BY status')
+      .bind(NEWS_ID).all();
+    for (const row of totals.results) {
+      counts[row.status] = row.count;
+      counts.total += row.count;
+    }
+    response.counts = counts;
+  }
+  return json(response);
 }
 
 async function getPhoto(id, env, admin = false) {
@@ -291,10 +306,32 @@ async function moderateComment(request, id, env, now) {
     throw new ApiError(400, 'invalid_json');
   }
   if (!body || typeof body !== 'object' || !['approved', 'rejected'].includes(body.status)) throw new ApiError(400, 'invalid_status');
-  const result = await database.prepare('UPDATE comments SET status = ?1, moderated_at = ?2 WHERE id = ?3 AND news = ?4')
-    .bind(body.status, now(), id.toLowerCase(), NEWS_ID).run();
-  if (result.meta.changes === 0) throw new ApiError(404, 'not_found');
-  return json({ id: id.toLowerCase(), status: body.status });
+  const guarded = Object.hasOwn(body, 'expected_status') || Object.hasOwn(body, 'expected_moderated_at');
+  let expectedTime = null;
+  if (guarded) {
+    if (!Object.hasOwn(body, 'expected_status') || !Object.hasOwn(body, 'expected_moderated_at')
+        || !['pending', 'approved', 'rejected'].includes(body.expected_status)) throw new ApiError(400, 'invalid_expectation');
+    if (body.expected_moderated_at !== null) {
+      if (typeof body.expected_moderated_at !== 'string') throw new ApiError(400, 'invalid_expectation');
+      expectedTime = Date.parse(body.expected_moderated_at);
+      if (!Number.isSafeInteger(expectedTime) || expectedTime < 0
+          || new Date(expectedTime).toISOString() !== body.expected_moderated_at) throw new ApiError(400, 'invalid_expectation');
+    }
+  }
+  // The stored review time also serves as a version. Incrementing it when the
+  // clock has not advanced prevents an earlier snapshot matching after an
+  // approved/rejected/approved cycle.
+  const moderatedAt = guarded && expectedTime !== null ? Math.max(now(), expectedTime + 1) : now();
+  const sql = `UPDATE comments SET status = ?1, moderated_at = ?2 WHERE id = ?3 AND news = ?4${guarded ? ' AND status = ?5 AND moderated_at IS ?6' : ''}`;
+  const bindings = [body.status, moderatedAt, id.toLowerCase(), NEWS_ID];
+  if (guarded) bindings.push(body.expected_status, expectedTime);
+  const result = await database.prepare(sql).bind(...bindings).run();
+  if (result.meta.changes === 0) {
+    const existing = await database.prepare('SELECT id FROM comments WHERE id = ?1 AND news = ?2')
+      .bind(id.toLowerCase(), NEWS_ID).first();
+    throw new ApiError(existing ? 409 : 404, existing ? 'state_conflict' : 'not_found');
+  }
+  return json({ id: id.toLowerCase(), status: body.status, moderated_at: new Date(moderatedAt).toISOString() });
 }
 
 function accessConfiguration(env) {

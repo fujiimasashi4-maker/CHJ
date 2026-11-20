@@ -78,9 +78,22 @@ honeypotが埋まった送信には同じ形式のreceiptを返し、保存し�
 
 | 操作 | リクエストとレスポンス |
 | --- | --- |
-| 一覧 | `GET /api/admin/comments?status=pending&limit=20&cursor=...`。status既定は`pending`、`approved`・`rejected`も指定可。公開一覧と同じ形式で、各投稿に`status`を追加します。写真URLは`/api/admin/photos/:id`です。 |
+| 一覧 | `GET /api/admin/comments?status=pending&limit=20&cursor=...`。status既定は`pending`、`approved`・`rejected`も指定可。各投稿に`status`・`news`・`moderated_at`（ISO日時またはnull）を追加。レスポンスの`counts`は全件の`pending`・`approved`・`rejected`・`total`で、ページング対象外の件数も含みます。写真URLは`/api/admin/photos/:id`です。 |
 | 写真確認 | `GET /api/admin/photos/:id`。承認待ち・承認済み・却下済みの保存写真を認証付きで確認できます。 |
-| 承認／却下 | `POST /api/admin/comments/:id`。`Content-Type: application/json`、本文`{"status":"approved"}`または`{"status":"rejected"}`。同一オリジン必須。成功は`{"id":"投稿UUID","status":"approved"}`等です。 |
+| 承認／却下 | `POST /api/admin/comments/:id`。`Content-Type: application/json`、同一オリジン必須。管理画面は`{"status":"approved","expected_status":"pending","expected_moderated_at":null}`のように、一覧で確認した状態と最終処理日時を必ず送信します。DB上の状態と一致した場合だけ保存。不一致は409 `state_conflict`。成功は`id`・`status`・`moderated_at`を返します。 |
+
+最終処理日時は保存のたびに進むため、別画面で処理された古い確認内容による上書きを防ぎます。期待値は必ず2項目を組にし、日時は一覧が返した標準ISO文字列またはnullをそのまま使います。過去のクライアント向け`{"status":"approved"}`形式は互換性のため利用可能ですが、競合検出はありません。新規実装では必ず期待値を送信してください。日時・件数は一般公開APIには追加しません。
+
+### 日常の確認手順
+
+管理URLは https://chjapan.com/admin/ です。許可された本人のCloudflareアカウントでログインします。URLをブックマークし、定期的に「最新の投稿を確認」を押してください。新着メールの自動通知はありません。
+
+1. 「確認待ち」の件数を押して一覧を開き、対象ニュース・表示名・本文・写真を確認します。
+2. 「確認して公開」を押し、ダイアログの全文と写真を確認して「この内容で公開する」を押します。写真がある場合、画像の読込成功まで公開確定はできません。
+3. 掲載しない投稿は「非公開にする」を選びます。削除せず保存し、後から再公開できます。
+4. 取り下げは「公開済み」から「非公開にする」で行います。
+
+処理後は状態と件数を再取得します。別画面で処理済み、通信失敗、ログインHTMLへの転送を保存成功として扱いません。保存結果が不明な場合は、ダイアログを閉じて最新一覧で状態を確認してください。最終処理日時は直近の処理を示し、操作の全履歴や処理者別の監査記録ではありません。
 
 ## エラーと未設定時の動作
 
@@ -88,11 +101,11 @@ JSONエラーは一貫して `{ "error": "安定したコード" }` を返しま
 
 | HTTP | error |
 | --- | --- |
-| 400 | `invalid_news`, `invalid_name`, `invalid_comment`, `content_required`, `invalid_photo`, `invalid_form`, `invalid_request_id`, `invalid_cursor`, `invalid_limit`, `invalid_status`, `invalid_json` |
+| 400 | `invalid_news`, `invalid_name`, `invalid_comment`, `content_required`, `invalid_photo`, `invalid_form`, `invalid_request_id`, `invalid_cursor`, `invalid_limit`, `invalid_status`, `invalid_json`, `invalid_expectation` |
 | 403 | `origin_required`, `forbidden` |
 | 404 | `not_found` |
 | 405 | `method_not_allowed` |
-| 409 | `request_conflict` |
+| 409 | `request_conflict`, `state_conflict` |
 | 413 | `payload_too_large`, `photo_too_large` |
 | 429 | `rate_limited` |
 | 503 | `service_unavailable` |

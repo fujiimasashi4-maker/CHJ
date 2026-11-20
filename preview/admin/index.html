@@ -4,27 +4,43 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>コメント・写真の確認 | CHJ</title>
+<title>投稿の確認・公開 | CHJ</title>
 <link rel="stylesheet" href="../assets/news-comments.css">
 <style>
-:root{font-family:system-ui,sans-serif;color:#15333c;background:#f2fafc;line-height:1.7}*{box-sizing:border-box}body{margin:0}.moderation-main{max-width:900px;margin:auto;padding:28px 20px 70px}a{color:#1f7392}h1{font-size:clamp(24px,5vw,34px)}.admin-toolbar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:24px 0}select{font:inherit;padding:9px;border-radius:6px}#moderation-list{display:grid;gap:18px}.moderation-card{background:#fff;padding:22px;border:1px solid #d9e8ec;border-radius:14px;overflow-wrap:anywhere}.moderation-card header{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline}.moderation-card time{font-size:14px;color:#4f6b73}.moderation-card p{white-space:pre-wrap}.moderation-card img{display:block;max-width:100%;max-height:420px;margin:14px 0;border-radius:8px}.moderation-card footer{display:flex;gap:12px;flex-wrap:wrap}.admin-note{font-size:14px;color:#4f6b73}#admin-status{min-height:2em}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #12657d;outline-offset:3px}
+:root{font-family:system-ui,-apple-system,sans-serif;color:#15333c;background:#f2fafc;line-height:1.7}*{box-sizing:border-box}body{margin:0}a{color:#176b87}button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:wait}a,button{-webkit-tap-highlight-color:transparent}.moderation-main{max-width:1040px;margin:auto;padding:28px 24px 70px}.admin-nav{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.admin-nav span{font-size:14px;color:#4f6b73}h1{font-size:clamp(26px,5vw,36px);letter-spacing:.02em;margin:24px 0 10px}h2{font-size:23px;line-height:1.5}.intro{max-width:760px;margin:0 0 24px}.summary-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:28px 0}.summary-grid button{background:white;border:1px solid #c9dfe5;border-radius:14px;text-align:left;padding:18px 20px;color:inherit;min-height:105px}.summary-grid button:first-child{border-top:4px solid #1f8fb5}.summary-grid span{display:block;font-size:14px;font-weight:600}.summary-grid strong{display:block;font-size:30px;line-height:1.5}.admin-toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:24px 0 10px}select{color:inherit;background:white;border:1px solid #7996a1;padding:9px 12px;border-radius:8px}.moderation-main button:not(.count-button),.review-dialog button{font-weight:700;border:0;border-radius:99px;background:#187d9d;color:white;padding:11px 20px;min-height:46px}.moderation-main .reject,.review-dialog .secondary{background:white!important;color:#205264!important;border:1px solid #7996a1!important}.update-time,.admin-note{font-size:14px;color:#4f6b73}#admin-status{min-height:2em;overflow-wrap:anywhere}#login-help{padding:16px;border:1px solid #b0cbd5;border-radius:10px;background:white}#moderation-list{display:grid;gap:18px;margin:20px 0}.moderation-card{min-width:0;background:white;padding:24px;border:1px solid #d0e1e7;border-radius:14px;overflow-wrap:anywhere}.moderation-card header,.review-dialog section header{display:flex;gap:14px;flex-wrap:wrap;align-items:center}.moderation-card header strong,.review-dialog section header strong{font-size:20px}.moderation-card header span,.review-dialog section header span{font-size:14px;font-weight:700;color:#275e70;background:#e9f5f8;padding:3px 10px;border-radius:99px}.moderation-card img,.review-dialog img{display:block;max-width:100%;height:auto;max-height:420px;margin:14px 0;border-radius:8px}.moderation-card footer{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}.post-text{white-space:pre-wrap;overflow-wrap:anywhere}.post-context{font-size:15px}.post-meta,.post-id{font-size:14px;color:#4f6b73;overflow-wrap:anywhere}.post-id{margin-bottom:0}.review-guide{margin-top:32px;padding:20px;border-radius:12px;background:#e5f2f6}.review-guide summary{cursor:pointer;font-weight:700}.review-guide li{margin:8px 0}.review-dialog{color:inherit;width:min(760px,calc(100% - 24px));max-height:90vh;max-height:90dvh;border:1px solid #b0cbd5;border-radius:16px;padding:0;overflow:auto}.review-dialog::backdrop{background:rgb(12 40 51 / .55)}.dialog-heading{padding:22px 24px 0}.dialog-heading h2{margin:0}.dialog-body{padding:0 24px 20px;overflow-wrap:anywhere}.dialog-actions{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:12px;flex-wrap:wrap;padding:18px 24px;background:#fff;border-top:1px solid #d0e1e7}.dialog-notice{background:#e9f5f8;border-radius:8px;padding:14px;font-size:15px}button:focus-visible,a:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #12657d;outline-offset:3px}[hidden]{display:none!important}@media(max-width:520px){.moderation-main{padding:20px 16px 50px}.summary-grid{gap:8px}.summary-grid button{padding:12px 10px;min-height:94px}.summary-grid strong{font-size:26px}.moderation-card{padding:18px}.admin-toolbar label{width:100%}.dialog-actions{padding:14px 16px}.dialog-actions button{width:100%}.dialog-heading{padding:20px 18px 0}.dialog-body{padding:0 18px 18px}}
 </style>
 </head>
 <body>
 <main class="moderation-main">
-<a href="../index.html">CHJ公式サイト</a>
-<h1>コメント・写真の確認</h1>
-<p>投稿内容と写真を確認してから公開してください。「非公開」にした投稿はサイトには表示されません。</p>
-<p class="admin-note">この画面はCHJ運営者用です。管理APIはCloudflare Accessで認証された管理者だけが利用できます。</p>
+<nav class="admin-nav" aria-label="運営者メニュー"><a href="/">CHJ公式サイト</a><span>CHJ運営者専用</span></nav>
+<h1>投稿の確認・公開</h1>
+<p class="intro">ニュースに届いたコメントと写真を確認し、掲載する投稿を選びます。確認待ち・非公開の投稿は、サイトの閲覧者には表示されません。</p>
+<div class="summary-grid" aria-label="すべての投稿の件数">
+<button type="button" class="count-button" id="count-pending"><span>確認待ち</span><strong id="pending-count">—</strong></button>
+<button type="button" class="count-button" id="count-approved"><span>公開済み</span><strong id="approved-count">—</strong></button>
+<button type="button" class="count-button" id="count-rejected"><span>非公開</span><strong id="rejected-count">—</strong></button>
+</div>
 <div class="admin-toolbar">
 <label for="review-status">表示する投稿</label>
 <select id="review-status"><option value="pending">確認待ち</option><option value="approved">公開済み</option><option value="rejected">非公開</option></select>
-<button type="button" id="refresh">再読み込み</button>
+<button type="button" id="refresh">最新の投稿を確認</button>
 </div>
+<p id="last-updated" class="update-time">件数と一覧を読み込んでいます。</p>
 <p id="admin-status" role="status" aria-live="polite">読み込んでいます…</p>
+<p id="login-help" hidden>ログインが必要な場合は、<a href="./">管理画面にログインし直す</a>からご本人のCloudflareアカウントでログインしてください。</p>
 <div id="moderation-list"></div>
-<button type="button" id="admin-more" hidden>さらに表示</button>
+<button type="button" id="admin-more" hidden>さらに20件表示</button>
+<details class="review-guide"><summary>投稿確認の手順</summary>
+<ol><li>「確認待ち」を選び、表示名・本文・写真を確認します。写真は押すと拡大できます。</li><li>掲載してよい投稿は「確認して公開」を押し、確認画面でもう一度内容を見て「この内容で公開する」を押します。</li><li>掲載しない投稿は「非公開にする」を選びます。投稿は削除されず、後から再公開できます。</li><li>掲載後に取り下げる場合は「公開済み」から「非公開にする」を選びます。</li></ol>
+<p>患者さんなど個人を特定できる情報、第三者への誹謗中傷、許可のない写真が含まれていないか確認してください。公開した投稿は日本語版・英語版の両方に表示されます。</p>
+<p class="admin-note">新着メールの自動通知はありません。このURLをブックマークし、定期的に「最新の投稿を確認」で確認してください。画面に戻ったときにも一覧を更新します。日時は日本時間で表示します。</p>
+</details>
 </main>
-<script type="module" src="../assets/comments-admin.js"></script>
+<dialog id="review-dialog" class="review-dialog" aria-labelledby="review-title" aria-describedby="review-message">
+<div class="dialog-heading"><h2 id="review-title">投稿内容の確認</h2><p id="review-message" class="dialog-notice" role="status" aria-live="polite"></p></div>
+<div id="review-body" class="dialog-body"></div>
+<div class="dialog-actions"><button type="button" id="review-cancel" class="secondary">閉じる</button><button type="button" id="review-confirm">この内容で公開する</button></div>
+</dialog>
+<script type="module" src="../assets/comments-admin.js?v=20261120-3"></script>
 </body>
 </html>
