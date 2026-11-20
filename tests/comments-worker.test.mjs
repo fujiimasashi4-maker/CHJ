@@ -72,7 +72,7 @@ function setup() {
     fetch: async (url, options) => {
       certificateRequests.push(url);
       assert.equal(url, 'https://chj-test.cloudflareaccess.com/cdn-cgi/access/certs');
-      assert.equal(options.redirect, 'error');
+      assert.equal(options.redirect, 'manual');
       return Response.json({ keys: [publicJwk] });
     },
   });
@@ -317,6 +317,48 @@ test('admin configuration and certificate service failures deny access', async (
   assert.equal(fixture.certificateRequests.length, 0);
   const worker = createWorker({ now: () => START, fetch: async () => { throw new Error('offline'); } });
   assert.equal((await worker.fetch(adminRequest(), setup().env)).status, 403);
+});
+
+test('Workers-compatible certificate fetching accepts a valid administrator', async () => {
+  const fixture = setup();
+  const requests = [];
+  const worker = createWorker({
+    now: () => START,
+    fetch: async (url, options) => {
+      requests.push({ url, redirect: options.redirect });
+      // Workers rejects this Fetch-standard mode before any outbound request.
+      // Node accepts it, so the ordinary Node fetch fixture missed this failure.
+      if (options.redirect === 'error') throw new TypeError('Invalid redirect value');
+      return Response.json({ keys: [publicJwk] });
+    },
+  });
+  const response = await worker.fetch(adminRequest(), fixture.env);
+  assert.equal(response.status, 200);
+  assert.deepEqual(await response.json(), { comments: [], next_cursor: null });
+  assert.deepEqual(requests, [{
+    url: 'https://chj-test.cloudflareaccess.com/cdn-cgi/access/certs',
+    redirect: 'manual',
+  }]);
+});
+
+test('a redirected certificate response is rejected without following its destination', async () => {
+  const fixture = setup();
+  const requests = [];
+  const worker = createWorker({
+    now: () => START,
+    fetch: async (url, options) => {
+      requests.push({ url, redirect: options.redirect });
+      if (options.redirect === 'error') throw new TypeError('Invalid redirect value');
+      return new Response(null, { status: 302, headers: { Location: 'https://untrusted.example/certs' } });
+    },
+  });
+  const response = await worker.fetch(adminRequest(), fixture.env);
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: 'forbidden' });
+  assert.deepEqual(requests, [{
+    url: 'https://chj-test.cloudflareaccess.com/cdn-cgi/access/certs',
+    redirect: 'manual',
+  }]);
 });
 
 test('admin mutation needs same-origin, valid status and an existing record', async () => {

@@ -335,7 +335,7 @@ export function createWorker({ fetch: fetchCertificates = globalThis.fetch, now 
       const unknownKey = cached && !cached.keys.some(key => key.kid === header.kid) && now() - cached.fetchedAt > 60_000;
       if (stale || unknownKey) {
         const response = await fetchCertificates(`${configuration.issuer}/cdn-cgi/access/certs`, {
-          redirect: 'error', signal: AbortSignal.timeout(5000), headers: { Accept: 'application/json' },
+          redirect: 'manual', signal: AbortSignal.timeout(5000), headers: { Accept: 'application/json' },
         });
         if (!response.ok) throw new Error('No certificates');
         const certificates = JSON.parse(decoder.decode(await readBody(response, 65_536)));
