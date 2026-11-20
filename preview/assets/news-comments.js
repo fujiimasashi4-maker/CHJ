@@ -2,13 +2,13 @@ const words = {
   ja: {
     title:'コメント・写真', note:'コメントと写真は、運営側の確認後に掲載します。表示名はニックネームでも構いません。',
     privacy:'個人を特定できる患者情報は投稿しないでください。写真は掲載の許可があるものをご使用ください。',
-    name:'表示名', nameHint:'80文字以内', comment:'コメント', commentHint:'2,000文字以内。コメントまたは写真のどちらかを入力してください。',
-    photo:'写真（任意・1枚）', photoHint:'JPEG・PNG・WebP。投稿前に縮小し、画像に含まれる位置情報などのメタデータを除去します。',
-    remove:'写真を外す', submit:'確認用に投稿する', sending:'投稿しています…', processing:'写真を準備しています…',
+    name:'表示名', nameHint:'80文字以内', comment:'コメント', commentHint:'コメントだけで投稿できます（2,000文字以内）。写真は任意です。',
+    photo:'写真（任意・1枚）', photoHint:'写真を添える場合だけ選択してください。JPEG・PNG・WebP、1枚まで。',
+    remove:'写真を外す', submit:'投稿する', sending:'投稿しています…', processing:'写真を準備しています…',
     empty:'まだ公開されたコメントはありません。', loading:'コメントを読み込んでいます…', more:'さらに表示',
     unavailable:'現在、コメント機能を利用できません。時間をおいて再度お試しください。',
-    preview:'この確認ページでは投稿できません。コメント・写真の投稿は公式サイトでご利用ください。', official:'公式サイトのお知らせを開く',
-    accepted:'受け付けました。コメントと写真は、運営側の確認後に掲載されます。', failed:'投稿できませんでした。入力内容は残しています。時間をおいて再度お試しください。',
+    preview:'この画面は表示確認用です。写真の有無にかかわらず投稿はまだ受け付けていません。公式サイトの接続完了後に受付を開始します。', previewButton:'確認ページでは投稿できません',
+    accepted:'投稿を受け付けました。運営側の確認後に掲載されます。', failed:'投稿できませんでした。入力内容は残しています。時間をおいて再度お試しください。',
     content:'コメントまたは写真を追加してください。', invalid_photo:'JPEG・PNG・WebPの写真を選んでください。',
     photo_too_large:'写真が大きすぎます。15MB以下の写真を選んでください。', image_failed:'この写真を読み込めませんでした。JPEG・PNG・WebPの別の写真を選んでください。',
     rate_limited:'短時間の投稿回数の上限に達しました。時間をおいて再度お試しください。', invalid_name:'表示名を80文字以内で入力してください。',
@@ -18,13 +18,13 @@ const words = {
   en: {
     title:'Comments & photos', note:'Comments and photos appear after review by CHJ. You may use a nickname.',
     privacy:'Do not post identifiable patient information. Only upload photos you have permission to publish.',
-    name:'Display name', nameHint:'Up to 80 characters', comment:'Comment', commentHint:'Up to 2,000 characters. Add a comment or a photo.',
-    photo:'Photo (optional, one image)', photoHint:'JPEG, PNG or WebP. Photos are resized and embedded metadata, such as location, is removed before upload.',
+    name:'Display name', nameHint:'Up to 80 characters', comment:'Comment', commentHint:'You can post a comment without a photo (up to 2,000 characters). Photos are optional.',
+    photo:'Photo (optional, one image)', photoHint:'Only select a file if you want to attach a photo. JPEG, PNG or WebP; one image.',
     remove:'Remove photo', submit:'Submit for review', sending:'Submitting…', processing:'Preparing photo…',
     empty:'No comments have been published yet.', loading:'Loading comments…', more:'Show more',
     unavailable:'Comments are currently unavailable. Please try again later.',
-    preview:'Posting is unavailable on this preview. Visit the official website to submit comments and photos.', official:'Open the official news page',
-    accepted:'Thank you. Your comment and photo will appear after review by CHJ.', failed:'We could not submit your post. Your input has been kept. Please try again later.',
+    preview:'This is a display preview. Posting is not yet available, with or without a photo. Submissions will open when the official site is connected.', previewButton:'Posting unavailable on this preview',
+    accepted:'Thank you. Your post will appear after review by CHJ.', failed:'We could not submit your post. Your input has been kept. Please try again later.',
     content:'Please add a comment or a photo.', invalid_photo:'Please select a JPEG, PNG or WebP photo.',
     photo_too_large:'Please select a photo smaller than 15 MB.', image_failed:'This photo could not be opened. Please select another JPEG, PNG or WebP image.',
     rate_limited:'You have reached the posting limit. Please try again later.', invalid_name:'Enter a display name of up to 80 characters.',
@@ -109,7 +109,9 @@ function initDiscussion(root,index) {
   const trap=element('div',null,'comment-trap');trap.setAttribute('aria-hidden','true');
   const website=element('input');website.name='website';website.type='text';website.tabIndex=-1;website.autocomplete='off';trap.append(website);form.append(trap);
   form.append(element('p',t.privacy,'comment-note'));
+  const availability=element('p',null,'comment-note');availability.id=uid+'-availability';availability.hidden=true;form.append(availability);
   const send=element('button',t.submit);send.type='submit';send.disabled=true;form.append(send);
+  send.setAttribute('aria-describedby',availability.id);
   const status=element('p',null,'comments-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.append(status);
   root.append(form);
   let photoBlob=null,previewUrl=null,processing=false,busy=false,available=false,nextCursor=null,photoVersion=0,requestId=crypto.randomUUID();
@@ -155,9 +157,9 @@ function initDiscussion(root,index) {
       if(!append)list.replaceChildren();
       result.comments.forEach(renderComment);nextCursor=result.next_cursor||null;
       more.hidden=!nextCursor;loadStatus.textContent=list.children.length?'':t.empty;
-      retry.hidden=true;available=true;updateButton();
+      availability.hidden=true;retry.hidden=true;available=true;updateButton();
     }catch{
-      if(!append){available=false;retry.hidden=false;updateButton();loadStatus.textContent=t.unavailable;}
+      if(!append){available=false;retry.hidden=false;availability.textContent=t.unavailable;availability.hidden=false;updateButton();loadStatus.textContent=t.unavailable;}
       else{loadStatus.textContent=t.unavailable;}
     }finally{more.disabled=false;}
   }
@@ -179,7 +181,7 @@ function initDiscussion(root,index) {
   });
   if(location.hostname.endsWith('github.io')){
     loadStatus.textContent=t.preview;
-    const official=element('a',t.official);official.href='https://chjapan.com/'+(lang==='en'?'en/':'')+'#event-news';loadStatus.append(document.createTextNode(' '),official);
+    availability.textContent=t.preview;availability.hidden=false;send.textContent=t.previewButton;
   }else load();
 }
 
