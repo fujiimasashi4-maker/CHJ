@@ -4,7 +4,7 @@
 
 ## 必要な設定
 
-Cloudflare上の設定・データベース作成・公開は、変更内容への最終承認を得た後に実施してください。この実装には稼働環境の認証値を含めていません。
+Cloudflare上で次の設定が必要です。この実装には稼働環境の認証値を含めていません。
 
 1. Cloudflareの **Storage & databases → D1** で、このサイト用のデータベースを用意します。D1 Consoleで `backend/comments-schema.sql` のDDLを実行してください。画像のBLOBをSQL本文に埋め込む操作は不要です。
 2. 対象Pagesプロジェクトの **Settings → Bindings** で、そのD1データベースを **`COMMENTS_DB`** という変数名にバインドします。プレビューと本番を利用する場合は、それぞれの設定対象を確認してください。
@@ -17,8 +17,8 @@ Cloudflare上の設定・データベース作成・公開は、変更内容へ�
 | `ACCESS_AUD` | 下記Accessアプリケーションに表示される **Application Audience (AUD)** の値。アプリ名やチーム名とは別の値です。 |
 | `ADMIN_EMAILS` | `fujii.masashi.4@gmail.com`。複数管理者を設定する場合はメールアドレスをカンマ区切りで指定します。 |
 
-4. Cloudflare Zero Trustの **Access → Applications** でSelf-hosted applicationを用意し、公開ホストの **`/api/admin/*`** を保護します。Allow policyの対象を上記管理者メールに限定してください。管理ページ自体も保護する場合は、その実際のURLをAccessに追加します。認証後のAPIリクエストに `Cf-Access-Jwt-Assertion` が渡る構成にします。
-5. 公開承認後、サイトのアップロード対象ルートに `_worker.js` を含めてPagesへデプロイします。D1バインディング、スキーマ、変数がプレビュー／本番それぞれの想定環境に揃っていることを確認してください。
+4. Cloudflare Zero Trustの **Access → Applications** でSelf-hosted applicationを用意し、公開ホストの管理画面 **`/admin/` とその配下** および **`/api/admin/*`** を同一アプリケーションで保護します。Allow policyの対象を上記管理者メールに限定してください。管理画面へ移動した時点でログインさせ、認証された同一アプリケーションのセッションでAPIを呼び出します。認証後のAPIリクエストに `Cf-Access-Jwt-Assertion` が渡る構成にします。
+5. サイトのアップロード対象ルートに `_worker.js` と `_routes.json` を含めてPagesへデプロイします。`_routes.json` では `/api/*` だけをWorkerに渡し、静的ページ・画像のリクエストを不要にWorkerへ渡しません。D1バインディング、スキーマ、変数がプレビュー／本番それぞれの想定環境に揃っていることを確認してください。
 
 WorkerはAccess JWTをWeb Cryptoで検証します。RS256署名、設定済みissuer、AUD、期限`exp`、有効開始`nbf`、許可メールがすべて必要です。鍵は設定済みチームの `https://<team>.cloudflareaccess.com/cdn-cgi/access/certs` だけから取得し、JWTの`kid`で選びます。JWTに含まれる別の鍵URLやメールヘッダーは認証根拠に使いません。証明書は5分キャッシュし、未知の`kid`では前回取得から60秒後に再取得できます。
 
@@ -106,9 +106,9 @@ D1未設定・スキーマ未適用・DB障害ではコメント／写真APIは5
 Node.js 24以降で、追加パッケージを入れずに実行できます。
 
 ```sh
-node --test tests/comments-worker.test.mjs
+node --test tests/comments-worker.test.mjs tests/comments-admin.test.mjs
 ```
 
-テストは`node:sqlite`のインメモリDBに実スキーマを適用し、WorkerのSQLをそのまま実行します。D1のインターフェースだけをアダプターで再現します。RSA鍵はテストプロセス内の一時鍵です。Cloudflare上の実バインディング、実際のAccessログイン、Pagesへのアップロード後の動作は、公開承認後の環境設定と確認が必要です。
+テストは`node:sqlite`のインメモリDBに実スキーマを適用し、WorkerのSQLをそのまま実行します。D1のインターフェースだけをアダプターで再現します。RSA鍵はテストプロセス内の一時鍵です。Cloudflare上の実バインディング、実際のAccessログイン、Pagesへのアップロード後の動作は、実環境での設定と確認が必要です。
 
 参考にした公式仕様は[Pages Advanced Mode](https://developers.cloudflare.com/pages/functions/advanced-mode/)、[D1 Prepared statements](https://developers.cloudflare.com/d1/worker-api/prepared-statements/)、[Access JWT validation](https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/)です。
