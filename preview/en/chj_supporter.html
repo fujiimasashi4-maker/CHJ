@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Supporters | Community Hospital Japan</title>
+<meta name="description" content="Support CHJ through consulting and banner advertising. Meet our board members and auditor and explore the plans.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#4BBFE1;
+  --teal-deep:#1F8FB5;
+  --teal-soft:#EAF7FB;
+  --ink:#15333C;
+  --ink-60:#4F6B73;
+  --paper:#FFFFFF;
+  --line:#D9E8EC;
+  --radius:14px;
+  --shadow:0 10px 30px rgba(21,51,60,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Noto Sans JP',sans-serif;color:var(--ink);background:var(--paper);line-height:1.8;font-feature-settings:"palt"}
+h1,h2,h3{font-family:'Zen Kaku Gothic New','Noto Sans JP',sans-serif}
+.num{font-family:'Montserrat','Noto Sans JP',sans-serif}
+a{color:inherit}
+
+header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.header-in{max-width:1100px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px}
+.logo{display:flex;align-items:center;text-decoration:none}
+.logo-img{height:40px;width:auto;display:block}
+nav{margin-left:auto;display:flex;gap:26px;font-size:14px;font-weight:500}
+nav a{text-decoration:none;color:var(--ink-60);transition:color .2s}
+nav a:hover{color:var(--teal-deep)}
+.nav-cta{background:var(--teal);color:#fff!important;padding:8px 18px;border-radius:99px;font-weight:700}
+.nav-cta:hover{background:var(--teal-deep)}
+@media(max-width:760px){nav a:not(.nav-cta){display:none}}
+
+.page-hero{
+  background:
+    radial-gradient(900px 500px at 85% -10%, #D2EFF6 0%, transparent 60%),
+    var(--paper);
+  border-bottom:1px solid var(--line);
+}
+.page-hero-in{max-width:1100px;margin:0 auto;padding:64px 24px 54px}
+.page-hero .en{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;letter-spacing:.22em;color:var(--teal);text-transform:uppercase}
+.page-hero h1{font-size:clamp(26px,4vw,40px);font-weight:900;margin-top:10px;letter-spacing:.02em}
+.page-hero p{color:var(--ink-60);margin-top:14px;max-width:42em;font-size:15px}
+.breadcrumb{font-size:12.5px;color:var(--ink-60);margin-bottom:18px}
+.breadcrumb a{color:var(--teal-deep);text-decoration:none}
+.breadcrumb a:hover{text-decoration:underline}
+
+section{padding:74px 0}
+.sec-in{max-width:1100px;margin:0 auto;padding:0 24px}
+.sec-head{margin-bottom:40px}
+.sec-head .en{font-family:'Montserrat',sans-serif;font-size:13px;font-weight:600;letter-spacing:.22em;color:var(--teal);text-transform:uppercase}
+.sec-head h2{font-size:clamp(22px,3.2vw,32px);font-weight:900;margin-top:8px;letter-spacing:.02em}
+.sec-head p{color:var(--ink-60);margin-top:12px;max-width:42em;font-size:15px}
+
+/* 料金プラン */
+#plans{background:linear-gradient(180deg,#F4FBFD 0%,#FFFFFF 100%)}
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.tier-grid{grid-template-columns:1fr}}
+.tier{
+  background:#fff;border:1px solid var(--line);border-radius:18px;
+  padding:34px 28px;box-shadow:var(--shadow);text-align:center;position:relative;
+  transition:border-color .2s, transform .2s;display:flex;flex-direction:column;
+}
+.tier:hover{border-color:var(--teal);transform:translateY(-3px)}
+.tier.featured{border:2px solid var(--teal)}
+.tier-badge{
+  position:absolute;top:-13px;left:50%;transform:translateX(-50%);
+  background:var(--teal);color:#fff;font-size:11.5px;font-weight:700;
+  border-radius:99px;padding:3px 16px;letter-spacing:.04em;white-space:nowrap;
+}
+.tier-price{color:var(--teal-deep);font-weight:700;font-size:46px;line-height:1.1;margin-bottom:6px}
+.tier-price .unit{font-size:.42em;font-weight:700}
+.tier-per{font-size:12px;color:var(--ink-60);margin-bottom:20px}
+.tier ul{list-style:none;text-align:left;margin:0 auto;display:inline-block}
+.tier li{font-size:14px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.tier li:last-child{border-bottom:none}
+.tier li::before{content:"✓";color:var(--teal-deep);font-weight:700;margin-right:8px}
+.tier li.note{font-size:12px;color:var(--ink-60)}
+.tier li.note::before{content:"※";color:var(--ink-60)}
+.advice-box{
+  margin-top:22px;background:var(--teal-soft);border:1px solid #BFE6EF;border-radius:18px;
+  padding:28px 30px;
+}
+.advice-box h3{font-size:16px;font-weight:900;margin-bottom:12px}
+.advice-list{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:8px 24px}
+@media(max-width:760px){.advice-list{grid-template-columns:1fr}}
+.advice-list li{font-size:14px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 16px}
+.advice-list li::before{content:"✓";color:var(--teal-deep);font-weight:700;margin-right:9px}
+.advice-note{margin-top:14px;font-size:13.5px;font-weight:700;color:var(--teal-deep)}
+.banner-card{
+  margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:18px;
+  padding:30px 28px;box-shadow:var(--shadow);
+  display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;
+}
+@media(max-width:760px){.banner-card{grid-template-columns:1fr;text-align:center}}
+.banner-price{color:var(--teal-deep);font-weight:700;font-size:40px;line-height:1.1;white-space:nowrap}
+.banner-price .unit{font-size:.45em}
+.banner-card h3{font-size:17px;font-weight:700;margin-bottom:6px}
+.banner-card p{font-size:13.5px;color:var(--ink-60)}
+
+/* 理事紹介 */
+.board-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:900px){.board-grid{grid-template-columns:1fr}}
+.member{
+  background:#fff;border:1px solid var(--line);border-radius:18px;
+  padding:30px 26px;box-shadow:var(--shadow);
+}
+.member h3{font-size:18px;font-weight:900}
+.member .role{font-size:12px;font-weight:700;color:var(--teal-deep);background:var(--teal-soft);display:inline-block;border-radius:6px;padding:2px 10px;margin:6px 0 12px}
+.member p{font-size:14px;color:var(--ink-60);line-height:1.8}
+.member .affiliation{color:var(--ink);font-weight:700;margin-bottom:10px}
+
+/* 申込CTA */
+.cta{
+  text-align:center;
+  background:radial-gradient(600px 320px at 50% 120%, #D2EFF6 0%, transparent 70%),#F4FBFD;
+  border-top:1px solid var(--line);
+}
+.cta h2{font-size:clamp(22px,3.2vw,32px);font-weight:900;margin-bottom:14px}
+.cta p{color:var(--ink-60);max-width:38em;margin:0 auto 30px;font-size:15px}
+.btn{
+  display:inline-block;background:var(--teal);color:#fff;text-decoration:none;
+  font-weight:700;font-size:16px;padding:16px 44px;border-radius:99px;
+  box-shadow:0 8px 22px rgba(75,191,225,.35);transition:transform .2s, background .2s;
+}
+.btn:hover{background:var(--teal-deep);transform:translateY(-2px)}
+.btn-ghost{
+  display:inline-block;color:var(--teal-deep);text-decoration:none;font-weight:700;
+  font-size:14px;padding:14px 32px;border-radius:99px;border:1.5px solid var(--teal);
+  margin-left:12px;transition:background .2s;
+}
+.btn-ghost:hover{background:var(--teal-soft)}
+@media(max-width:560px){.btn-ghost{margin-left:0;margin-top:12px}}
+
+footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-top:1px solid var(--line)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+
+/* English text and language navigation */
+.lang-switch{display:flex;align-items:center;gap:8px;flex:none;font-size:12px;font-weight:700;white-space:nowrap}
+.lang-switch a{padding:5px 7px;border-radius:5px;text-decoration:none;color:var(--ink-60,#405765)}
+.lang-switch a[aria-current="page"]{color:var(--teal-deep,#12657d);background:var(--teal-soft,#e5f7fb)}
+.lang-switch a:focus-visible{outline:2px solid var(--teal-deep,#12657d);outline-offset:2px}
+.header-in{flex-wrap:wrap}
+nav{gap:16px;font-size:13px;align-items:center}
+.hero h1{max-width:18em}
+.plan-price{font-size:clamp(28px,4vw,38px)}
+.tier-price{font-size:clamp(28px,3.5vw,36px)}
+.btn{max-width:100%;padding-left:28px;padding-right:28px}
+.member,.tier,.plan-card,.hosp,.map-wrap>*{min-width:0;overflow-wrap:break-word}
+.member h3{line-height:1.5}
+.member h3 small{display:block;font-size:.78em;font-weight:500;color:var(--ink-60)}
+@media(max-width:760px){.header-in{gap:8px;padding-left:16px;padding-right:16px}.lang-switch{margin-left:auto}nav{margin-left:0}.nav-cta{padding:8px 12px}.logo-img{max-width:115px;height:auto;max-height:64px}.kw{font-size:14px}.kw-lg{font-size:16px}.panel-head h3{font-size:21px}}
+@media(max-width:400px){.header-in nav{order:3;width:100%;justify-content:flex-end}.lang-switch{margin-left:auto}.stat{min-width:0;flex:1 1 140px}}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-in">
+    <a class="logo" href="chj_landing_page.html">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAK0AAABgCAYAAABv2fIpAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAgEklEQVR42u2dd3wVVdrHv2dmbk0lCb2KCgihKgqIiIJgx7aLZVVEXQR72VXWuvZ1VVBwZRUrroiogNhR1LUh7msB6SUJJUBCertl5pz3j5l7SQKBNCwwz+czuTf3zpyZe87vPOfpRyhlKeIknMMll35tUs6xO2lu57j0eyMXtC65oHXJJRe0LrnkgtYlF7QuueSC1iWXXNC6dICR8WvcVAFKKWxHhtqPdxJorq/EBW3zQAmEENX+c8ml3yhoY7w1ryrKutIqDE3EnXXNDV0JeIVG3zQ/Hk13R9oFbSOBpBS6ECwvrOSh5fkkeXXsyIfmha0AoihSDMGMwR1J8e6fieHSwSQe6AK/R8dnaCgFAoEmmgYr5fxVjojsVRAwlAtUF7TNJycoJVFKA6UIqyhhCUKJhom51XQ4JRRgENRAEyAVKAVqvyp6Lh08oHWQKYCwUvRIDtAt0UcU5XzaOJFAKsmX+VVUmi5QXdDuJ3arCQhbkmMyEjmrc0qztLq8eBOlUYkhXMHABe1+pIhUSGUralojwBaThiNSusKAC9pfSlAg7gRojDNA1WrDpQObXDeuSy5oXXLJBa1LLrmgdckFrUsuuaB1ySUXtC65oHXJJRe0LrnkgtYlF7QuueSC1iWXmkL7DJiJRU01NW+27utV/G9j8sVUtdfmjPBSSsWP2j0hBAihVUvO3Hs7e+oLGhDNtsc2Ghl6uae26mpP1Wv8Go8FUQtfzQZauzHZ4IbrZuvVw7wFCg2EE6XlfNLQDoi3L2STn1FKiVIKXdf3CYzYuZpWN4BFM8T1imaMDW5QWwqE2MUOmjOIbvdc7PrXRjb29sQRaaHQ0Jpplkml8GgS08kLUygECksqolISlbJR8bSxqRCRAhmbAY3krJpmTy3LssjasI5NmzazMy+PqqoqvD4vqS3SaNO6DR07dSajVcv49ZZloes1s36lZVFWVh6f9CBQUuEP+PEHAvV6rlAoTKiqogbYlILEpCQMw2jwb6woK8e0zF2MXoHQNJKSk3cDtERiysZnk9TrmQRoUmFoot6LT52/2lSCfyzLY2uViU8TSNW0mRYTAnSg3AK/rmFJRdAweH9rKV9uL8WiETliNdYaRVEUPMJ+3npPJstCczjr6lUrmfPqf/jy08/IztpAWXk5ZtTcxc11Db/PT3p6Bn369eXkM87gjLPOJjExCSklQog4+HNzt/KHMWcSDYXRdA1N1yksKOCvt9/JFVddhWmadQIvNgkWzn+TO2+9ldTUVCzLQghBOBLh5ddep2///khpodUjRV4phRCC6ydNYMnX35CYmIACIqEQHTt34Y2F7+Dz++3J6xQ5WV0cYtqqPHy67uTbNQ+3rSkaKHQBt/VpS5uAx050FU0QD3KrJDkVFgGdBoFgn2KCEOgi9vCKclNRajbPgqOLhmmXMXDk5+3gsYce4vU5r1FSXEzA58fr85KUmLQ7B5KSoqICPnzvPd5duJB/TXmCG279C+f+8XwHINJp2yQ/bxuRyjCarqPpOjt35lNRUVHv56uqrGT7tlwioVActKFImGg00qheKiooYMe2XCqTklBAKFRFICFhjytppQXZlRZBXcXHX8TFOtWkkYrrL8JmZKaSzSPT+jSBXxP4NIGlQKJsfi4aObWcn6rVWtaF0NBRjgzViBmrAKEccUM0GLCfL/6Ym6+9luyNG0lJTSUjLR2pZA1FTAinsIi0O9cwPCSn+BBCkJ21kQnjLuXrL7/gvoceiS/9Qgg8Hi/Kq+Kg9Xq9u4kRe53gmn2Nx+tFc0ArUY2Wcw2PJ96eAqS08Hg8dTAXGwNeTUM66fnS6WuB1jjWq+zMad3m5/Z7pZpHERMOxCROJ6FIMjS0BqtK1Z/XXnZCUhK2YnIteDSJT9gd01DpoDr4QRCWCkvVH7DvLVzAhMvGgVKkt2yJaZqYlukoVxqRcIhIJIJ0llePx4PP50PTNCzLAsAf8BNMSmDm9H+xc2chL7zyn7jsWd0KsbtFon6/svZ1Dbu+bquIqvZ/3fcWNlgBrxD4vRKk1iRBQThc3FJO+w1EVD2sBwpLKRJ0nbv7tybda2DRuCIYUik8QufDrSW8sL6QZK9BSURyVqdEzuvSwhb6hWiUyUsAUSm598cdbKsy0ffCiaSU6LrOt0u+YeL4yzA0A4/XgxmN2p2i65RXlGOZFh07d6LLIV0JBIOEw2G2bt5MTnY2kXCYpJTkOBDMSJTUlumcd/7YXVzwAMlZ0wRURCWD2yQwoUcGEWnLoY2bNHZ7jy7P58fiKvy63mAt36jPtBBoICQtvDpJnqbUxbLXkwSPZmv5jmyUYOi08DY9x1Ki0MTe561StghRXFTEDZOuwjItfAn+ONfUNZ3CoiIGDDyKSdddz/EnnkhqatouOa+igp9++IGXnp/JwnlvoesGgUCAoqJCpv7rac448ywsy0TXjQOquo0CvLog0dBpDpXMENDY+j8N8oiZjgYpazkD6nvEr6+FKstZqmKvDT1izxOth7aopEJogulPPM6aVStJSEqMA1bTdEpKi7ly4lUs+OAjxpxzHqmpaSilbJusVAQTEhg8dCgznn+R51+ZTdu2bdmyJZdb77iLCy8Zh2lGEeLAdDTGLAiNHafa2Gk04BsqizSlQGdd5mNR66AZ267Z6RJN18jdsplXX3yJlORULNPhsIZOcWERF195OQ8+OsWepKYZdzLElnylFMqprzD6tNPo3qM7b89fwHU334yUCl03miRz/tapqePUHFKTwUFEllQYOrw9fwF5O3aQnpGBadpKV2VFJUdkZnL/g48g4xaC3btHCIFwtH/Lsuhy6GFcd/PNjm1W1EtRklJimaZjwqpLUZTgcHiXDlbQKuLerk8XfYjh8cQBIYQgHA4x4eprCQSDe/Ru7Yl0XUdJhVSyXucLB9DBgB/dMND34tGKNRdMSDigObcL2n0oYJomKCosZN3aNfh8vriXKBKJ0KZtW0aOHl3DlVuvpU4T6NRPOZVSEvAH+OLTxZiWRTQarfNeSkoMj8H3//sOv8/vAvegBK2j8ebm5lJcVIxhGHGAhsNhBnQ/ilatW8eBvD9ISkkgGOSTjz/mvXff3WvkVMxO7vX6CAaDrphwcIoHNjwqK8uJRqM1OK1lmrRp2y4OrIZ4rBrD8YPBIAkJCfU+3wVsE0xeB7C4i2G4+zK4nPa3+oMNT1zLjys9mkbBznxHRt2/81gIQVVVFeFwyIkIq+s8e3Xwen34AwFXpj0oQevIqRnpGQSDCYRCIXRdR0qJ1+dj4/oNVJSXk5CYuN/k2pjS1yszk8O6d49HbdUlg2uazuasbJb9+CMer8cF7sEG2lhwedt27WjfoQOrV67EcBQcn89H9sZsln7zDcNHjmywXCstC6HtO/1G03XKy8s4Z+wFTLj66nq1PXf2q0y8fDxp/rS4525v8q84CCqgHzwyrRBYloXh8TDg6IGEw+FqgS0CqSxemPmM/Vk9OZrtHVPxAPL6cttwOIxlWfHXPR2RSATLsqiqqqxXuGYMsPvixrt2yqwp07ug/Y3TmHPOsZdbZ7ikZZGcksyi999n3tw56IZBNBrdKwBiS7vQBP/9bDHS4YKqHrGhQgh0Xa/XUR+bcQywlZWVtjXEsmo8e+x9NBphZ8FOdCOWrWd/5/N6G5y644L2FyJd11FKMWjIUAYfeyzlZeVxMUBJ8AcC3HL99Xz+ycd4PJ44AGofymnLNKPcd+cdnDF6NHfe9ld7AjQ4XrZpFJs8m3OyGHHsEBa8Odf+TY4pz3KcGEIIVixbzoZ16/H7/Y4ZTWCaFi1btYzbrX8P4kW9QSuUnXdlKdXkQ9Ya1FjkUFPai72qenAlXTe49Y670DRRY1k1DAMrajLuTxfx5JTHKCku3iP3Qym++OxTzjv9VJ547FHatG7JjGlPcvfk29A1rWHpF00kj8dLfl4eF58/lg1rVnPD1ZP415NTiIRDtqvYyZbIy9vBXbdPRpomwskpE5rANKP07JVpT7h92IObOk7VD9WEWK99rAkCEdsGVAgSDfYaXL1PTudcG9Dt/N5YDoRP09GFaFLbNifV0PexOGuahrQkRw8ewtU33sAj9z9ImzZtiEajSCkxvB6kZXHfHXcw+6WXGTbiBHr37kNKSiqlZaVkb9zIkq++4of//Q8pJWlpaZimRUZGK2ZMm0bUjHL3/Q86zov9B9YYNy8tLeaKSy9m1bKfSWuZQTQc4Z6/3c6bc+cy/IQRtGnbltytubz39nw2b8ohISFxlygjJT6fn5NPPT022nsFrEcTzjg1LXMhZmZUSjQqD6Z+xTqEICoVb2QXk2DodmZuI9ILJGAIxaqSCF5Nw1Lg1QQ/F1fizZZYsW5rRDauACIoykwLXey9K4RmL/u33n4XOTk5zHnlVVq3amUv/VKiaRotWrRg65ZNPPf0DLsmg64jpeUMtI9AMCEuPsRCF6OmyapVqzFNE5/Ptx8Ru6tPb5g4kc8+/pj2HdoTqgrZz56aypqfV/DT/30PSiEEBIMJNmCrRbAVFxUxfMRIBg4e7CiUWp2382qCrPIo83IKsRRosVR91bDxsnMEFXmVJh5NoVTDE7jqBVpdKMISZmeVNgP3UBiahl8XWErh1QQ/FYX5bmeoyXGWAvAbGrpgr3liQoi4gjN9xkyCgSAvz5xJcnIKXp8vLrt6fX78/mDNZUwIlJQ1Bj8SiVBYWMjYiy9h6rTp+Pz+6qbh/WAJAWcJ5Jw/juWLzz6jpLiEpKQkJ8fNIhAMEkxIjGd+ymrP7PF4qKysJCk1mTvvf8BOllSyTk6rHOayvjTCiqIqmh4Rq/AZOh6hNyqr19iXbVMTdhEFA0jxNo+rMyYbxyZFQBckGFqzMCCrnrnuMTnW4/EwZfrT9O03gMcefohtW7cQTEiMJy/uplQphdA0dCASiVBcVEzLNq257a67mXD1NXHlKKbgxa0AzmEHlTcgiqyapaH6/7FaB6ePOYv0jAyuv2oCG9atIyk5Ga/Xa8+YWKoB1ChCUliwk5S0NGY8/wKZvXsjndVlT3NDEzYOJODTIdBMVgYZr6MgaKiwYdQNAEWlGaU8GiUqtWbTiAUC3UlLV07PVFkK07Kcjm6SKRa/odVbu4wBVynFuCuu5KRTTuGFZ5/hnfnz2JSVTSQSQdMEmmbEeyXGsQyPh/YdOnDhuPH8+eqJdOnS1c7YZVfpISkVJcUlhKtCcdAWVoQIh+pf9yAcDlFUVokQ2q5iHeEQphmJm7EGHzuUDz79jKeemMq8N95g65YtWKaJ0JyMC2XvG6whSE5N4bSzz2byHXfRrccRe40dNqWkPGpi7k+LiBIYwqpXBvUuo4CqfvquRAqpFN/sLKUiqux9ZpVqdDpb7DpbphWsKAnzUW4Ffl0QshSD0wMcmR6wyyWJxk4GMJXirU0lFEds8CR5YOrR7Unxevb57NUHr7y8jO+WLGHpt0vIyc6mpKiIWOmT1NQWdOnalb4D+jPwmGNo0SJ9t+tjFony8nIWvf8elozJvRqhcIj+AwZwRM/MOjlc9TY2rF/Ld0u+xevzopwyP9KSnHjSSNIzWu1WzqmwYCdLvv6Kn77/kW25W2w512uQlpZGr16ZDBpyLIce3i1uLdjT/WN9lReK8ENBJR5tlzzanBVmbD1HoAnJMS2TSKjBxeu2LtQJ2v1JX+WV8eCyfFK8OsVhiwnd0hjTObVZ2r5uyWY2VZoYQjQItDGgNNSFa1qWLUZpv67JuyEZFLEct30/s+LXy4OvG7TGvuSOZjWEK4UuBCGz2gMJRUjailNjjduxro1Ki4Zs6SyldLRrEY8diDkgYt9RC5DVbZmapmHsAyS7xQs4MnF9PV2macbvVb1/aldqjGVQ7Iq/dSRGRzyIKTwxJVTUq1+bXsOt3g6DBtzEaK6G6gsuTewuAmjYNbgkTdvQ2aon4GPyWW0wxv6Pgbcur1pDvXCNl9FFnSWL9qW4NZeRQv8NOsgOutiDGLcSQrB+7Rq+/eZrtm3dEgesUqqmy9YBuOm4RGOHlBLLsjBNM859a7h7nc9rn1P9fex7IO5yjbldlVLk5+1g2pTHWLd2Tfw5pNx171g7MY58sIQuagcbYAHyduzgovPOZehRR3LemafRr2cP/nrjdUSjkd2CWWJLsOG4RKsHsui6jmEYccDXcPc6n9c+p/r72PdA3OWq63o87iEvbzvPPDWd7dtyKSwsYPiQY9i8KSd+XfWVwTCMgyIssV7OhQOPy8KNkyaw6KOPefr558js3Zu5s2djSYlheKiqrGDWSy+x7IfvGThoEBddMg7TNJkx7QkO69aD5T/9gM8f4Jzz/sCbr8+hYOdOxk+YwGGHd+OpJ6bQvmMnNmVlUVRcxLjxl/PRB++zZuUqLho3jv5HHsUTjz1K7z59OPGkUbz/zttkbcxi3BVX8uyMpzjssG6sXLGSUKiSa264iXZtO3H2H8aSnpHBzH/P4PulS/n77Xdw7tjzWb9uDf36H8mwE05gU04OLz8/k4vGjadr1657tUocIANpqV2HVPuTTGm3/0luiTp10Xp1wefZ6pRF69XrG4uUUkpZsnH3j10Vtix19Tc5aswnG9W5i7PUuC+yVHE4Yt/bspRSSq1ds0a18BlqxrQndmsnFAqpc087RXXKSFMXnDNGtQz61FWXXaoKd+5UHdNSVI9OHdTo449TGQGv6n3oIerk4cNUy4BPnXzi8SocDqu+hx2iOqa3UKeeOFy1Sgionp07qpNPGKY6ZaSpAT27qaLCAtW1TUv11+uvVUopNWHcpeqwDu3Vzvx8dUjrDHVYuzbq9JEjlBfULddfozZn5ygd1Juvz1Y3X3eNapeaqI7u20vNeWWWGjPqJDVs4ACllFIP3fd3lR70qfz8PLs/5P4dx1+GpKqJzV2HdhCxWQCKi4qQlqTr4Ydjmiahyiosy9bQ/7t4MZ8s+pA3336HV9+cz3OvvMrcObP5/vv/kZaezpUTJ/HBZ/+lV58+dOjUifc//ZxJN91IzoaNRKMR/MEgZ517Hu9+8imnjRmD7vXy/uLPefDRx9iWu52S0lJatW1DQqJdPywpOZn0tDQ8HgOfL8Al4y9n4aKPGTPmDFatWImlTNISfCQlp3DDLbdQVRVm2oxn+ONFf+KKiVexZu1qtm7dzKcfL+KSy8aTkdFyryk8rkz7O6PYQHbq0oXE5CQWvPkGhmHgDwYIh8IU5OdTVRXCMLy069gBgK6HH4YmNCoqKgGNpJRkO2ja76NFixYopUhISMLweNCFhmVJ0tLTUUqRnJxMSmoKAH6/33YLC0E0Eo3XCJNIpLJQKJSySMuwi90lJibiMTz2bheOblVVFUYTgoAT1zB85El07NiFu2+7lc05m/jDBRfGNX5Xpj1QQKtpSClp3bo1t0yezG1/uY2CgkJ69+3LgrlzSW/VihdffY3Wrdtw/jlnc/G4y3j26afp1bsvRx8ziG3bcgmH7BSd0pISvIbXyRaooLS0FKlsT1p5WanjDauguLgYgFAoREFBAV6vj5atWvPqrFl4fX4WzH2DtPR0TNOktKSUygp7Q5CysjLKy8uwpKSkMkw0EsHn8xKJRHj4gQe4dPwVjDrlFMZeeCF3/u0ORo4cwdGDBtueMf3AT4U/qKwHmgPcG265lZdfnUVJUSFvz59Hj8xe3HXvA7Rq3Zo5CxbQsUtnZj77bzL79WXW62+QlpbOsBEj6NK1KwCDjx3KkUcfA8Dh3bpz/IgRaLrOccNPpHuvniilyOzTh+OOHw5Auw4dGDl6FAmJSdx9/wN07tKFNatX8scLLuCYIUMwDA8nnDSKQw49HIB+A45i4KBB+IMBTh59EqkpqbTv0JHrbrqZtWvWUFJciJSSkaNG4fManHrmGTbntg6Ooh6/qBs35hFbvK2Ux1bkk+I1KI6YXHZoOn84JBWpVKO2ZIo5FyJSctPSLWyptPbqxq0rSKQuj1z1zxvq2KwRk1CPa+s6p7ZFYNrjj/GP+++nfacOLPjgI1q3blNDDDoAlBAa5cY98JQxe5+T2oEt1QRfpCXtmgNCYDlAiXHo6t0ZA4i9r4Ks0U4kEkITOrrHE79XDLy7uXWFIBIOAwqfP4AWizzDCQncwzMopTjl1NNp264DAwcdQ5s2be3znPN3q6dbzaFS3V4de/97M48dXNYDAdKKMvkvNzL/rbnxQZv14nPce+ff4lkTuq4jNK1GhmrMZ1/9sD8TNQz9VZWVDDt6IFMfexRd03j5hZmsX7cuHtNQ23Ghaxpjzx7D4w8/bE8UR/vXqu1H9ujDDzD98Snx++q6zmE9unPe+WPp3KVLXPSJxUkIB7zVn1s4weuxz2LHHmOGXdD+dhYbsLNuZ896mf/77tv4wH31xX958/U58cFX0mLt6lXs2L7NAaPNqTblZLNxwzoATDPKju07AMjJySLXcQV7PB4uvuwyhh4/jO1bt3LNn//M2/PepLy8HCklleXlrF+3hp35eXGgb9m0KV6WaU+R/AvnzeeD996x7xuNsmVTDtlZG+LALC0ppri4CMuMsmb1SkJVVTZnVopQqIqN69eyffu2eMmnvLw8IpEwhQU7ydq4/ncnUmi/FUDFguybetSH0tLSMTw+wuEQ4XAYn89HcrJtnlr583KGDx7E6OOHcnTfTO6+fTJKKZ56cipnjh7FKSecwKQrL2fDunWMGjaUs08dzaknnsDAzEymPzEVr8/H/Llz2bB2LU8/9RSJwQSm/PMfTPnnP9i+bQvHHjmAs08ezTF9e/PklEcBO/3F8NQtqSUnJ5OQnIRSignjxzFiyGBGHXcc5515GuUVZTz3zDMMO2YgZ59yMiOPHczQgQNYtWIFZaXFjDh2CGeeNIoh/ftxzx2TsSyLyy/+E6cOH8Ypw49nYGYmUx99JC43u6Dduw4Yf9WdrGtdiN32X6jPEUvX8Gn7VnRMyyIxIZHnn36a/t270b/H4bw1+3VSklOIRqNMuuJyNE3w7iefc9e9D/LPhx5m4bx5vPL88xxxRA9emzefKyZMBE2wZUsOCcEE3lj4LhePG8fdk29j2bIf2LF9O7lbcxn/5ytBgyuvmsT4KyfQqnV77v/HP5n+7HOMPvV0Hn3wQQoLduLxenfT/O2gGDtLQlrSLr0kBBMmXc2TzzzL3x96mEUffMjijz7CF/Cxdu0Gzh17Ae9/9l+i0Si33XIjKSktuOPe+5j2zLNcdMklTHv8cbI3biRSVUlFVYipM/7NkOOG8uLMmVjO3mm/B1HB+DX5q8TO6iyOmGyvjBJRCr2RnFoIiCgLUyr2Fi2qaRqhUIijBg2Kp07PnTPbTo0pKWLNqlU8+/JL9MzMpGdmJs/+azrffbuEO+65l+uvnsi4C8Yy+a57GHDUUehC49qbbuKInr245uabePG558hau4HElBQ0TaNzl0PQNI0jjuhB+w4d+PTjj5j+xOMkt0jFCkcIBIJUVlag67tvmW3Lr84gGbYMXFZexnPPzGBTVg4du3QiOSWJsrIyopEIPbt15dIrrgDg4ksvY9aLL7B0ydfMfOop0AU+n5eUpGQqK8qxpMXQ449n8LFDGXLsULI2vvK7kmuNX5XTKggYgo9yK1i8tRzZBNlKodBQRNEwtLqzcTVNEKqqYvCQIVw5cRIA69au5psvviQlJZW27drx0gsvMGz4iSz78SfWrF7DxOuuo13HTrz3yWJe+88srp80iVfmzMEf8DP7lVfofkRP3nr9dUKhEO07dcCM2BVdotEwpmWxKSebkpISHnv4YUqLi3n3k8X8+6knWbp0qb3vQrX6Wkoq0GHO7Fepqihn2PATWPHzz5x57rl88+UXPPviLFavWklySioL5y9EQ+Dz+di4aQuffPQh/QYM4O0F8zm8W3denDmT5ct+ZGX2Jt6ZP5/FHyxCN+z9zSLhMFLaNcN+b1Yy41eCazwYXHMAFxFN2yZYKOEEkat4fmT1gPJqG89jKUVFeQWWadqJlZVVRCIRPB4vj0x9gqvGX8aQfv0oLinmvLFjOWPMOYw992yKC/LRDYNRp55MRutW+ANBvv3mK04YMoicrCyuuvYa+h15FKWlpUQtE8PwkpnZh8l/u4uIpRh74UVMvuUWLjj3HPLzduDxeJCWxLQspKxphvr+u6U889R0EoIJBBMSuHT85aSlp9OzaxeuumI87dq2JRIJ2xvISUFCMMg9f5vMttxcQpEw/5w6lfy8nSycP4/zzzqTUGUVutfAMp37KYmm2buLx7IjXOfCXpwLi3JLeHh5PokeI57B2pxKncDmtMkeeHpwB1KrORekkqz6eQUt0tJo1749AJtycqioKKfHET0RQrAzP5//ffstLVu1jHu+qiqr+G7pEiorKzhx5ElkbVhP/16ZvPXOQlJTW6AJwdGDh6CU4uflP5Ke3pJ27TuwY/s2li9bTq/MnrRt14Gl3yyhtKSEnr0zKSwo4PDu3di4cQMJwQQ6du4ST/8BWLl8Gdu2baN3n760amM7D7Zs2cz3S5eS2bs3oXCINu06MOWRR3jztf+w6KuvWbHsZ3pm9qJDx04ALPvxR7Zu3kyf/v0oLCrk0K5d2bx5CwF/kE5dOpO7ZTOFRQX06tUXof2WWO5vJLEx5vH6v/xyXssqImDoDcrpaggntxQkanBt71YkGZ56e7J2i0V18qtqm4Wyszbylxuu5fZ77qdf//7VnBXUeaeG5MDVft7qu6HXplkvPM+Xn33Ov196qcbvqO5QOJA8Yr8oaJ1d151b/BKCv3C8VdpuwNyT16h6yk3snOqfxY3ztZIKpbSAXedWbz/WVg2jv5PcGLtnXQCTUsbPiT+rlPbk14STd1ntdzgZuZqTqFm7jT3dr/Zvd0Fbp5H/l9FUlbLrTWn76YdIZ0L82szstwu8AwS0LrnUVNC6WzK59Lsjrb7odsmlX9iwVec3RkPYsksu/QY5rUsuuaB1ySUXtC655ILWJRe0LrnkgtYll1zQuvR7p/8H5jH7Iak/C+MAAAAASUVORK5CYII=" alt="CHJ Community Hospital Japan" class="logo-img">
+    </a>
+    <nav>
+      <a href="chj_landing_page.html">Home</a>
+      <a href="#board">Board and auditor</a>
+      <a href="#plans">Plans</a>
+      <a class="nav-cta" href="#contact">Contact</a>
+    </nav>
+    <div class="lang-switch" aria-label="Language"><a href="../chj_supporter.html" lang="ja" hreflang="ja" title="日本語">JA</a><a href="chj_supporter.html" lang="en" hreflang="en" aria-current="page" title="English">EN</a></div>
+  </div>
+</header>
+
+<div class="page-hero">
+  <div class="page-hero-in">
+    <div class="breadcrumb"><a href="chj_landing_page.html">Home</a> / Support CHJ</div>
+    <span class="en">Supporters</span>
+    <h1>Support CHJ</h1>
+    <p>Help support CHJ through consulting with our board members or banner advertising.</p>
+  </div>
+</div>
+
+<!-- ================= 料金詳細 ================= -->
+<section id="plans">
+  <div class="sec-in">
+    <div class="sec-head">
+      <span class="en">Plans</span>
+      <h2>Consulting with CHJ board members</h2>
+      <p>Receive advice directly from our board members on hospital operations, management and the development of health care products and services.</p>
+    </div>
+    <div class="tier-grid">
+      <div class="tier featured">
+        <div class="tier-badge">Recommended</div>
+        <div class="tier-price num">1,000,000<span class="unit"> JPY</span></div>
+        <div class="tier-per">per year</div>
+        <ul>
+          <li>Two advice sessions per year</li>
+          <li>Choose two board members from a group that includes Honda and Osugi (proposed)</li>
+          <li class="note">You may choose different advisers for each session</li>
+        </ul>
+      </div>
+      <div class="tier">
+        <div class="tier-price num">500,000<span class="unit"> JPY</span></div>
+        <div class="tier-per">per year</div>
+        <ul>
+          <li>One advice session per year (proposed)</li>
+          <li>Number of advisers and selection process to be confirmed</li>
+        </ul>
+      </div>
+      <div class="tier">
+        <div class="tier-price num">300,000<span class="unit"> JPY</span></div>
+        <div class="tier-per">per year</div>
+        <ul>
+          <li>One advice session per year</li>
+          <li>One board member</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="advice-box">
+      <h3>Areas of advice</h3>
+      <ul class="advice-list">
+        <li>Community hospital management</li>
+        <li>Managing medical departments</li>
+        <li>Communications and branding</li>
+        <li>Product development for community health care</li>
+        <li>Developing and introducing medical and long-term care services</li>
+      </ul>
+      <p class="advice-note">Other topics can be discussed according to your needs.</p>
+    </div>
+
+    <div class="banner-card">
+      <div class="banner-price num">50,000<span class="unit"> JPY</span></div>
+      <div>
+        <h3>Banner advertising</h3>
+        <p>We prepare and display your banner on our website and include it in the CHJ Summit abstract booklet. Supporters also receive a discount on exhibition booths.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= 理事・監事 ================= -->
+<section id="board">
+  <div class="sec-in">
+    <div class="sec-head">
+      <span class="en">Board members &amp; auditor</span>
+      <h2>Meet our board and auditor</h2>
+    </div>
+    <div class="board-grid">
+      <article class="member">
+        <h3>Yoshihisa Honda<small lang="ja">本田 宜久</small></h3>
+        <div class="role">Representative Director</div>
+        <p class="affiliation">Director and Head of General Practice, Kaita Hospital (頴田病院)</p>
+        <p>A graduate of Nagasaki University School of Medicine, he worked in general practice and respiratory medicine at Aso Iizuka Hospital (飯塚病院) before becoming Director of Kaita Hospital (頴田病院) in 2008. He is a board-certified general internal medicine specialist and a designated supervisor for specialist training in general practice.</p>
+      </article>
+      <article class="member">
+        <h3>Yasuhiro Osugi<small lang="ja">大杉 泰弘</small></h3>
+        <div class="role">Board member</div>
+        <p class="affiliation">Professor of General and Family Medicine, Fujita Health University School of Medicine</p>
+        <p>A graduate of 藤田保健衛生大学 (now Fujita Health University), he practiced general medicine at Aso Iizuka Hospital (飯塚病院) and Kaita Hospital (頴田病院) and worked at Toyota Regional Medical Center (豊田地域医療センター). He became a professor at Fujita Health University in 2025 and leads its general practice training program.</p>
+      </article>
+      <article class="member">
+        <h3>Shin Yoshida<small lang="ja">吉田 伸</small></h3>
+        <div class="role">Board member</div>
+        <p class="affiliation">Deputy Director, Kaita Hospital (頴田病院)</p>
+        <p>A graduate of Nagoya City University Medical School, he completed initial residency at Aso Iizuka Hospital (飯塚病院), family medicine training through the Iizuka–Kaita program, and home medical care training at Kaita Hospital (頴田病院). A specialist in family medicine, general practice and home medical care, he leads the Iizuka–Kaita family medicine residency program.</p>
+      </article>
+      <article class="member">
+        <h3>Kazuki Matsushima<small lang="ja">松島 和樹</small></h3>
+        <div class="role">Board member</div>
+        <p class="affiliation">Director, 川崎在宅クリニック</p>
+        <p>A graduate of Kobe University School of Medicine, he completed initial residency at Kobe City Medical Center General Hospital and advanced training in the Iizuka–Kaita family medicine program. He is a specialist and supervisor in family medicine and home medical care, and has directed 川崎在宅クリニック since 2025.</p>
+      </article>
+      <article class="member">
+        <h3>Hiroki Miyachi<small lang="ja">宮地 紘樹</small></h3>
+        <div class="role">Board member</div>
+        <p class="affiliation">Director, Kakegawa East Hospital (掛川東病院)</p>
+        <p>A graduate of Nagoya University School of Medicine with a doctorate in medicine, he worked in cardiovascular and vascular surgery and home medical care before becoming Director of Kakegawa East Hospital (掛川東病院) in 2019. His specialties are general internal medicine and vascular surgery.</p>
+      </article>
+      <article class="member">
+        <h3 lang="ja">重冨 雄哉</h3>
+        <div class="role">Board member</div>
+        <p class="affiliation">Chair, medical corporations 光輝会 and 香流会</p>
+        <p>After serving as Deputy Director of 六日市病院 in Shimane, he became Chair of the medical corporations 光輝会 and 香流会. He oversees the operation of Kouki Hospital (光輝病院) in Yamaguchi.</p>
+      </article>
+      <article class="member">
+        <h3>Masashi Fujii<small lang="ja">藤井 将志</small></h3>
+        <div class="role">Board member</div>
+        <p class="affiliation">Director of Administration, Yatsuda Hospital (谷田病院)</p>
+        <p>A graduate of Waseda University’s School of Political Science and Economics, he worked in medical management consulting and as a management adviser at 沖縄県立中部病院. He became Director of Administration at Yatsuda Hospital (谷田病院) in 2015 and founded 医療環境総研 in 2020.</p>
+      </article>
+      <article class="member">
+        <h3 lang="ja">山内 剛志</h3>
+        <div class="role">Auditor</div>
+        <p class="affiliation">Head of Information Systems and Medical Administration Section Chief, 済生会みすみ病院</p>
+        <p>He obtained the Level 1 health care management qualification (医療経営士) in 2024. He has taught at training sessions jointly organized by the Japan Hospital Association and 病院経営管理士会, and lectures on health information systems and security.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= お問い合わせ ================= -->
+<section class="cta" id="contact">
+  <div class="sec-in">
+    <h2>Ask about supporting CHJ</h2>
+    <p>Contact us to discuss consulting or banner advertising.</p>
+    <a class="btn" href="contact.html">Ask about becoming a supporter →</a>
+    <a class="btn-ghost" href="chj_landing_page.html">Back to the home page</a>
+  </div>
+</section>
+
+<footer>Copyright © 2018 Community Hospital Japan All Rights Reserved.</footer>
+</body>
+</html>

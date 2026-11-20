@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>コメント・写真の確認 | CHJ</title>
+<link rel="stylesheet" href="../assets/news-comments.css">
+<style>
+:root{font-family:system-ui,sans-serif;color:#15333c;background:#f2fafc;line-height:1.7}*{box-sizing:border-box}body{margin:0}.moderation-main{max-width:900px;margin:auto;padding:28px 20px 70px}a{color:#1f7392}h1{font-size:clamp(24px,5vw,34px)}.admin-toolbar{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:24px 0}select{font:inherit;padding:9px;border-radius:6px}#moderation-list{display:grid;gap:18px}.moderation-card{background:#fff;padding:22px;border:1px solid #d9e8ec;border-radius:14px;overflow-wrap:anywhere}.moderation-card header{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline}.moderation-card time{font-size:14px;color:#4f6b73}.moderation-card p{white-space:pre-wrap}.moderation-card img{display:block;max-width:100%;max-height:420px;margin:14px 0;border-radius:8px}.moderation-card footer{display:flex;gap:12px;flex-wrap:wrap}.admin-note{font-size:14px;color:#4f6b73}#admin-status{min-height:2em}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #12657d;outline-offset:3px}
+</style>
+</head>
+<body>
+<main class="moderation-main">
+<a href="../index.html">CHJ公式サイト</a>
+<h1>コメント・写真の確認</h1>
+<p>投稿内容と写真を確認してから公開してください。「非公開」にした投稿はサイトには表示されません。</p>
+<p class="admin-note">この画面はCHJ運営者用です。管理APIはCloudflare Accessで認証された管理者だけが利用できます。</p>
+<div class="admin-toolbar">
+<label for="review-status">表示する投稿</label>
+<select id="review-status"><option value="pending">確認待ち</option><option value="approved">公開済み</option><option value="rejected">非公開</option></select>
+<button type="button" id="refresh">再読み込み</button>
+</div>
+<p id="admin-status" role="status" aria-live="polite">読み込んでいます…</p>
+<div id="moderation-list"></div>
+<button type="button" id="admin-more" hidden>さらに表示</button>
+</main>
+<script type="module" src="../assets/comments-admin.js"></script>
+</body>
+</html>

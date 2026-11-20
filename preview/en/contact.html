@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Contact | Community Hospital Japan</title>
+<style>
+:root{font-family:system-ui,sans-serif;color:#142b38;background:#f2fafc;line-height:1.65}
+*{box-sizing:border-box}body{margin:0}header,main{max-width:760px;margin:auto;padding:24px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-size:.925rem}
+a{color:#12657d;font-weight:700}main{padding-top:16px;padding-bottom:64px}
+h1{font-size:clamp(1.8rem,6vw,2.65rem);margin:6px 0}p{color:#405765}
+.state{padding:.65rem .9rem;background:#e5f7fb;border-left:4px solid #25768e;border-radius:5px}
+form{background:white;border:1px solid #cfe3eb;border-radius:16px;padding:clamp(16px,4vw,32px);margin:26px 0 18px}
+.field{margin:0 0 20px}label{display:block;font-weight:700;margin:0 0 5px}
+input,select,textarea{font:inherit;color:inherit;width:100%;border:1px solid #7799a7;border-radius:8px;padding:.7rem .8rem;background:white}
+textarea{min-height:125px;resize:vertical}small{font-weight:400;color:#4a6471}
+button{font:inherit;font-weight:700;color:white;background:#12657d;padding:.75rem 1rem;border:0;border-radius:99px;cursor:pointer}
+:focus-visible{outline:3px solid #047289;outline-offset:3px}
+output{display:block;margin-top:12px;color:#12657d;font-weight:600}
+
+/* Language navigation */
+.lang-switch{display:flex;align-items:center;gap:8px;flex:none;font-size:12px;font-weight:700;white-space:nowrap}
+.lang-switch a{padding:5px 7px;border-radius:5px;text-decoration:none;color:#405765}
+.lang-switch a[aria-current="page"]{color:#12657d;background:#e5f7fb}
+</style>
+</head>
+<body>
+<header><a href="index.html">CHJ home</a><a href="chj_supporter.html">Support CHJ</a><div class="lang-switch" aria-label="Language"><a href="../contact.html" lang="ja" hreflang="ja" title="日本語">JA</a><a href="contact.html" lang="en" hreflang="en" aria-current="page" title="English">EN</a></div></header>
+<main>
+  <h1>Contact</h1>
+  <p>Use this form layout to preview inquiries about joining CHJ, CH Map listings, supporter plans or other topics.</p>
+  <p class="state"><strong>Form preview.</strong> This is a demonstration of the input fields. Information entered here is neither sent nor saved.</p>
+  <form id="contact-preview" autocomplete="off">
+    <div class="field"><label for="name">Name <small>Required</small></label><input id="name" required maxlength="100"></div>
+    <div class="field"><label for="org">Organization <small>Optional</small></label><input id="org" maxlength="150"></div>
+    <div class="field"><label for="email">Email address <small>Required</small></label><input id="email" type="email" required maxlength="254"></div>
+    <div class="field"><label for="topic">Topic <small>Required</small></label>
+      <select id="topic" required><option value="">Choose a topic</option><option>Joining CHJ</option><option>CH Map listing</option><option>Supporter plans and consulting</option><option>Events and seminars</option><option>Other</option></select>
+    </div>
+    <div class="field"><label for="message">Message <small>Required</small></label><textarea id="message" required maxlength="3000" aria-describedby="privacy"></textarea><p id="privacy"><small>Please leave out information that could identify a patient.</small></p></div>
+    <button type="button" id="check">Check required fields (no submission)</button>
+    <output id="status" role="status"></output>
+  </form>
+</main>
+<script>
+const form = document.getElementById('contact-preview');
+form.addEventListener('submit', (event) => event.preventDefault());
+document.getElementById('check').addEventListener('click', () => {
+  document.getElementById('status').textContent = form.reportValidity() ? 'Required fields checked. Your message has not been sent.' : '';
+});
+</script>
+</body>
+</html>

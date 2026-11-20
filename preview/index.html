@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/news-comments.css">
 <style>
 :root{
   --teal:#4BBFE1;
@@ -307,6 +308,7 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
       <a href="#about">法人について</a>
       <a href="#events">イベント</a>
       <a class="nav-cta" href="contact.html">お問い合わせ</a>
+      <span class="lang-switch" aria-label="言語切り替え"><span lang="ja" aria-current="page">日本語</span><span aria-hidden="true">/</span><a href="en/" lang="en" hreflang="en">EN</a></span>
     </nav>
   </div>
 </header>
@@ -426,6 +428,9 @@ footer{padding:34px 24px;text-align:center;font-size:12px;color:#8FA6AC;border-t
         </a>
         <figcaption>チラシをタップすると拡大できます。</figcaption>
       </figure>
+      <section class="news-comments" data-news-id="fsf-ashiya-2026-12-12" data-language="ja">
+        <noscript>コメントの表示・投稿にはJavaScriptを有効にしてください。</noscript>
+      </section>
     </div>
     <div class="event-list">
       <article class="event-card">
@@ -709,5 +714,6 @@ function renderPanel(region){
 const listedFacilities = Object.values(REGION_DATA).flatMap(d=>d.facilities);
 document.getElementById('stat-total').textContent = listedFacilities.length;
 </script>
+<script type="module" src="assets/news-comments.js"></script>
 </body>
 </html>
