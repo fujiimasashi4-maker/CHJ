@@ -424,6 +424,7 @@ test('Workers-compatible certificate fetching accepts a valid administrator', as
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
     comments: [], next_cursor: null, counts: { pending: 0, approved: 0, rejected: 0, total: 0 },
+    notifications: { enabled: false, configured: false, queued: 0, retry_wait: 0, sending: 0, accepted: 0 },
   });
   assert.deepEqual(requests, [{
     url: 'https://chj-test.cloudflareaccess.com/cdn-cgi/access/certs',
@@ -576,4 +577,350 @@ test('rotated Access keys are refreshed only from the configured certificate URL
   const assertion = token({}, { kid: 'rotated', jku: 'https://attacker.invalid/certs' }, otherKeyPair.privateKey);
   assert.equal((await worker.fetch(adminRequest('/api/admin/comments', { headers: { 'Cf-Access-Jwt-Assertion': assertion } }), fixture.env)).status, 200);
   assert.equal(fetchCount, 2);
+});
+
+function notifications(fixture, deliver = async () => Response.json({ accepted: true }), readiness = async () => Response.json({ enabled: true, configured: true })) {
+  const requests = [];
+  fixture.env.NOTIFICATIONS_ENABLED = 'true';
+  fixture.env.CHJ_EMAIL_NOTIFIER = {
+    async fetch(request) {
+      if (request.method === 'GET') {
+        assert.equal(request.url, 'https://chj-notifier.internal/status');
+        assert.equal(request.redirect, 'manual');
+        assert.equal(request.body, null);
+        assert.equal([...request.headers].length, 0);
+        return readiness(request);
+      }
+      requests.push(request);
+      return deliver(request);
+    },
+  };
+  return requests;
+}
+
+async function notificationSummary(fixture) {
+  const response = await fixture.worker.fetch(adminRequest(), fixture.env);
+  assert.equal(response.status, 200);
+  return (await response.json()).notifications;
+}
+
+async function retryNotifications(fixture, options = {}) {
+  return fixture.worker.fetch(adminRequest('/api/admin/notifications/retry', { method: 'POST', ...options }), fixture.env);
+}
+
+test('new comments atomically enqueue notifications without notifying older comments on migration', async () => {
+  const fixture = setup();
+  fixture.db.sqlite.exec('DROP TRIGGER comments_notification_enqueue; DROP TABLE notification_outbox;');
+  const oldId = await submit(fixture);
+  const migration = await readFile(new URL('../backend/notification-migration.sql', import.meta.url), 'utf8');
+  fixture.db.sqlite.exec(migration);
+  fixture.db.sqlite.exec(migration);
+  const newId = await submit(fixture);
+  const rows = fixture.db.sqlite.prepare('SELECT comment_id, attempts FROM notification_outbox').all();
+  assert.deepEqual(rows.map(row => ({ ...row })), [{ comment_id: newId, attempts: 0 }]);
+  assert.notEqual(oldId, newId);
+  fixture.db.sqlite.exec("CREATE TRIGGER fail_notification BEFORE INSERT ON notification_outbox BEGIN SELECT RAISE(ABORT, 'queue unavailable'); END;");
+  assert.equal((await fixture.worker.fetch(submission(), fixture.env)).status, 503);
+  assert.equal(fixture.db.sqlite.prepare('SELECT COUNT(*) AS count FROM comments').get().count, 2);
+});
+
+test('notifications stay queued unless sending is explicitly enabled and configured', async () => {
+  for (const enabled of [undefined, false, true, 'false', 'TRUE', ' true ']) {
+    const fixture = setup();
+    const requests = notifications(fixture);
+    fixture.env.NOTIFICATIONS_ENABLED = enabled;
+    await submit(fixture);
+    assert.equal(requests.length, 0);
+    assert.deepEqual(await notificationSummary(fixture), {
+      enabled: false, configured: false, queued: 1, retry_wait: 0, sending: 0, accepted: 0,
+    });
+    assert.deepEqual(await (await retryNotifications(fixture)).json(), {
+      notifications: { enabled: false, configured: false, queued: 1, retry_wait: 0, sending: 0, accepted: 0 }, attempted: 0,
+    });
+  }
+  const fixture = setup();
+  fixture.env.NOTIFICATIONS_ENABLED = 'true';
+  await submit(fixture);
+  assert.deepEqual(await notificationSummary(fixture), {
+    enabled: true, configured: false, queued: 1, retry_wait: 0, sending: 0, accepted: 0,
+  });
+  assert.equal((await (await retryNotifications(fixture)).json()).attempted, 0);
+});
+
+test('a new post sends only an empty fixed internal request and records provider acceptance', async () => {
+  const fixture = setup();
+  const requests = notifications(fixture, async () => Response.json({ accepted: true, ignored: 'provider data' }));
+  const id = await submit(fixture, { name: 'Private name', comment: 'Private comment', photo: new File([PNG], 'private.png', { type: 'image/png' }) });
+  assert.equal(requests.length, 1);
+  assert.equal(requests[0].url, 'https://chj-notifier.internal/notify');
+  assert.equal(requests[0].method, 'POST');
+  assert.equal(requests[0].redirect, 'manual');
+  assert.equal([...requests[0].headers].length, 0);
+  assert.equal(await requests[0].text(), '');
+  const row = fixture.db.sqlite.prepare('SELECT * FROM notification_outbox WHERE comment_id=?').get(id);
+  assert.equal(row.attempts, 1);
+  assert.equal(row.accepted_at, START);
+  assert.equal(row.lease_token, null);
+  assert.equal(row.lease_until, null);
+  assert.equal(row.last_error, null);
+  assert.deepEqual(await notificationSummary(fixture), {
+    enabled: true, configured: true, queued: 0, retry_wait: 0, sending: 0, accepted: 1,
+  });
+});
+
+test('honeypots invalid inputs rate limits and conflicting receipts never enqueue or send', async () => {
+  const fixture = setup();
+  const requests = notifications(fixture);
+  await submit(fixture, { website: 'https://spam.invalid' });
+  assert.equal((await fixture.worker.fetch(submission({ name: '' }), fixture.env)).status, 400);
+  assert.equal(requests.length, 0);
+  const requestId = crypto.randomUUID();
+  await submit(fixture, { request_id: requestId });
+  assert.equal((await fixture.worker.fetch(submission({ request_id: requestId, comment: 'changed' }), fixture.env)).status, 409);
+  await submit(fixture);
+  await submit(fixture);
+  assert.equal((await fixture.worker.fetch(submission(), fixture.env)).status, 429);
+  assert.equal(requests.length, 3);
+  assert.equal(fixture.db.sqlite.prepare('SELECT COUNT(*) AS count FROM notification_outbox').get().count, 3);
+});
+
+test('concurrent receipt retries send once and never resend failed or accepted notifications', async () => {
+  const fixture = setup();
+  const requests = notifications(fixture, async () => { throw new Error('private transport details'); });
+  const requestId = crypto.randomUUID();
+  const responses = await Promise.all(Array.from({ length: 8 }, () => fixture.worker.fetch(submission({ request_id: requestId }), fixture.env)));
+  assert.equal(responses.every(response => response.status === 202), true);
+  assert.equal(requests.length, 1);
+  fixture.advance(60_000);
+  await submit(fixture, { request_id: requestId });
+  assert.equal(requests.length, 1);
+  assert.equal(fixture.db.sqlite.prepare('SELECT COUNT(*) AS count FROM notification_outbox').get().count, 1);
+  fixture.env.CHJ_EMAIL_NOTIFIER.fetch = async request => {
+    if (request.method === 'GET') return Response.json({ enabled: true, configured: true });
+    requests.push('manual retry');
+    return Response.json({ accepted: true });
+  };
+  const retry = await (await retryNotifications(fixture)).json();
+  assert.equal(retry.attempted, 1);
+  assert.equal(retry.notifications.accepted, 1);
+  await submit(fixture, { request_id: requestId });
+  assert.equal(requests.length, 2);
+});
+
+test('failed and malformed provider results preserve the comment receipt and retain a retryable outbox', async () => {
+  const failures = [
+    async () => { throw new Error('private SMTP credentials and post details'); },
+    async () => { throw new DOMException('private timeout', 'TimeoutError'); },
+    async () => new Response('private upstream failure', { status: 503 }),
+    async () => Response.json({ accepted: true }, { status: 202 }),
+    async () => Response.json({ accepted: false }),
+    async () => Response.json({ delivered: true }),
+    async () => new Response('<html>Log in</html>', { headers: { 'Content-Type': 'text/html' } }),
+    async () => new Response('{broken', { headers: { 'Content-Type': 'application/json' } }),
+    async () => new Response(null, { status: 302, headers: { Location: 'https://untrusted.invalid/' } }),
+    async () => new Response('x'.repeat(4097), { headers: { 'Content-Type': 'application/json' } }),
+  ];
+  for (const deliver of failures) {
+    const fixture = setup();
+    notifications(fixture, deliver);
+    const id = await submit(fixture);
+    const row = fixture.db.sqlite.prepare('SELECT * FROM notification_outbox WHERE comment_id=?').get(id);
+    assert.equal(row.attempts, 1);
+    assert.equal(row.accepted_at, null);
+    assert.equal(row.lease_token, null);
+    assert.equal(row.next_attempt_at, START + 60_000);
+    assert.match(row.last_error, /^(delivery_failed|timeout)$/);
+    assert.deepEqual(await notificationSummary(fixture), {
+      enabled: true, configured: true, queued: 0, retry_wait: 1, sending: 0, accepted: 0,
+    });
+    const listed = await (await fixture.worker.fetch(adminRequest(), fixture.env)).text();
+    assert.doesNotMatch(listed, /private|credentials|SMTP|last_error|lease_token/);
+  }
+});
+
+test('a stalled notification is bounded while preserving the accepted post', async () => {
+  const fixture = setup();
+  notifications(fixture, () => new Promise(() => {}));
+  const started = Date.now();
+  const id = await submit(fixture);
+  assert.ok(Date.now() - started < 10_000);
+  const row = fixture.db.sqlite.prepare('SELECT accepted_at,last_error FROM notification_outbox WHERE comment_id=?').get(id);
+  assert.equal(row.accepted_at, null);
+  assert.equal(row.last_error, 'timeout');
+});
+
+test('notification claim or completion database failures never undo a stored comment', async () => {
+  for (const stage of ['claim', 'accepted', 'failed']) {
+    const fixture = setup();
+    const requests = notifications(fixture, async () => {
+      if (stage === 'failed') throw new Error('offline');
+      return Response.json({ accepted: true });
+    });
+    const condition = stage === 'claim' ? 'NEW.attempts > OLD.attempts' : stage === 'accepted' ? 'NEW.accepted_at IS NOT NULL' : 'NEW.last_error IS NOT NULL';
+    fixture.db.sqlite.exec(`CREATE TRIGGER fail_state BEFORE UPDATE ON notification_outbox WHEN ${condition} BEGIN SELECT RAISE(ABORT, 'private database details'); END;`);
+    const id = await submit(fixture);
+    assert.equal(fixture.db.sqlite.prepare('SELECT status FROM comments WHERE id=?').get(id).status, 'pending');
+    assert.equal(requests.length, stage === 'claim' ? 0 : 1);
+    assert.equal(fixture.db.sqlite.prepare('SELECT accepted_at FROM notification_outbox WHERE comment_id=?').get(id).accepted_at, null);
+  }
+});
+
+test('retry waits for its cooldown and increases backoff without losing the queue', async () => {
+  const fixture = setup();
+  const requests = notifications(fixture, async () => { throw new Error('offline'); });
+  await submit(fixture);
+  assert.equal((await (await retryNotifications(fixture)).json()).attempted, 0);
+  assert.equal(requests.length, 1);
+  fixture.advance(60_000);
+  const retry = await (await retryNotifications(fixture)).json();
+  assert.equal(retry.attempted, 1);
+  assert.equal(requests.length, 2);
+  const row = fixture.db.sqlite.prepare('SELECT attempts,next_attempt_at FROM notification_outbox').get();
+  assert.equal(row.attempts, 2);
+  assert.equal(row.next_attempt_at, START + 60_000 + 300_000);
+});
+
+test('admin GET never sends and a retry processes at most one queued notification', async () => {
+  const fixture = setup();
+  await submit(fixture);
+  await submit(fixture);
+  const requests = notifications(fixture);
+  assert.equal((await notificationSummary(fixture)).queued, 2);
+  assert.equal(requests.length, 0);
+  const retried = await retryNotifications(fixture);
+  assert.equal(retried.status, 200);
+  assert.deepEqual(await retried.json(), {
+    notifications: { enabled: true, configured: true, queued: 1, retry_wait: 0, sending: 0, accepted: 1 }, attempted: 1,
+  });
+  assert.equal(requests.length, 1);
+  const publicResponse = await (await fixture.worker.fetch(new Request(`${ORIGIN}/api/comments?news=${NEWS}`), fixture.env)).json();
+  assert.deepEqual(publicResponse, { comments: [], next_cursor: null });
+});
+
+test('concurrent retries cannot deliver the same leased notification twice', { timeout: 2000 }, async () => {
+  const fixture = setup();
+  await submit(fixture);
+  let release;
+  let started;
+  const delivering = new Promise(resolve => { started = resolve; });
+  const requests = notifications(fixture, () => { started(); return new Promise(resolve => { release = resolve; }); });
+  const first = retryNotifications(fixture);
+  await delivering;
+  assert.equal((await notificationSummary(fixture)).sending, 1);
+  const second = await retryNotifications(fixture);
+  assert.equal((await second.json()).attempted, 0);
+  release(Response.json({ accepted: true }));
+  assert.equal((await (await first).json()).attempted, 1);
+  assert.equal(requests.length, 1);
+});
+
+test('an interrupted lease recovers while an old completion cannot overwrite the new lease', async () => {
+  const fixture = setup();
+  const id = await submit(fixture);
+  fixture.db.sqlite.prepare('UPDATE notification_outbox SET attempts=1,lease_token=?,lease_until=? WHERE comment_id=?').run('interrupted', START + 60_000, id);
+  const requests = notifications(fixture, async () => {
+    fixture.db.sqlite.prepare('UPDATE notification_outbox SET lease_token=?,lease_until=? WHERE comment_id=?').run('newer-owner', START + 120_000, id);
+    return Response.json({ accepted: true });
+  });
+  assert.equal((await (await retryNotifications(fixture)).json()).attempted, 0);
+  fixture.advance(60_000);
+  assert.equal((await (await retryNotifications(fixture)).json()).attempted, 1);
+  assert.equal(requests.length, 1);
+  const row = fixture.db.sqlite.prepare('SELECT accepted_at,lease_token,attempts FROM notification_outbox WHERE comment_id=?').get(id);
+  assert.equal(row.accepted_at, null);
+  assert.equal(row.lease_token, 'newer-owner');
+  assert.equal(row.attempts, 2);
+});
+
+test('notification retry requires verified admin same-origin POST and refuses caller-supplied data', async () => {
+  const fixture = setup();
+  await submit(fixture);
+  const requests = notifications(fixture);
+  const path = '/api/admin/notifications/retry';
+  const unauthenticated = new Request(`${ORIGIN}${path}`, { method: 'POST', headers: { Origin: ORIGIN } });
+  assert.equal((await fixture.worker.fetch(unauthenticated, fixture.env)).status, 403);
+  assert.equal((await retryNotifications(fixture, { headers: { Origin: 'https://attacker.invalid' } })).status, 403);
+  assert.equal((await fixture.worker.fetch(adminRequest(path), fixture.env)).status, 405);
+  assert.equal((await fixture.worker.fetch(adminRequest(path, { method: 'DELETE' }), fixture.env)).status, 405);
+  assert.equal((await retryNotifications(fixture, { body: '{"to":"attacker@example.com"}' })).status, 400);
+  assert.equal((await fixture.worker.fetch(adminRequest(path + '?to=attacker@example.com', { method: 'POST' }), fixture.env)).status, 400);
+  assert.equal(requests.length, 0);
+});
+
+test('admin readiness never sends and fails closed without hiding the moderation list', async () => {
+  const states = [
+    async () => Response.json({ enabled: false, configured: true }),
+    async () => Response.json({ enabled: true, configured: false }),
+    async () => Response.json({ enabled: 'true', configured: true }),
+    async () => Response.json({ enabled: true, configured: 'true' }),
+    async () => Response.json({ accepted: true }),
+    async () => Response.json(null),
+    async () => Response.json({ enabled: true, configured: true }, { status: 202 }),
+    async () => Response.json({ enabled: true, configured: true }, { status: 503 }),
+    async () => new Response('<html>private readiness details</html>', { headers: { 'Content-Type': 'text/html' } }),
+    async () => new Response('{broken', { headers: { 'Content-Type': 'application/json' } }),
+    async () => new Response('x'.repeat(4097), { headers: { 'Content-Type': 'application/json' } }),
+    async () => { throw new Error('private readiness credentials'); },
+  ];
+  for (const readiness of states) {
+    const fixture = setup();
+    await submit(fixture);
+    const requests = notifications(fixture, undefined, readiness);
+    const response = await fixture.worker.fetch(adminRequest(), fixture.env);
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(data.comments.length, 1);
+    assert.equal(data.comments[0].comment, 'A real comment');
+    assert.deepEqual(data.notifications, {
+      enabled: true, configured: false, queued: 1, retry_wait: 0, sending: 0, accepted: 0,
+    });
+    assert.equal(requests.length, 0);
+    assert.doesNotMatch(JSON.stringify(data), /private readiness/);
+  }
+});
+
+test('disabled Pages notifications skip readiness and remain safely unconfigured', async () => {
+  const fixture = setup();
+  let checks = 0;
+  const requests = notifications(fixture, undefined, async () => { checks++; throw new Error('readiness should not run'); });
+  fixture.env.NOTIFICATIONS_ENABLED = 'false';
+  await submit(fixture);
+  assert.deepEqual(await notificationSummary(fixture), {
+    enabled: false, configured: false, queued: 1, retry_wait: 0, sending: 0, accepted: 0,
+  });
+  assert.equal(checks, 0);
+  assert.equal(requests.length, 0);
+});
+
+test('readiness fetch and response-body stalls are bounded without losing the moderation list', async () => {
+  for (const readiness of [
+    () => new Promise(() => {}),
+    async () => new Response(new ReadableStream({ start() {} }), { headers: { 'Content-Type': 'application/json' } }),
+  ]) {
+    const fixture = setup();
+    await submit(fixture);
+    const requests = notifications(fixture, undefined, readiness);
+    const started = Date.now();
+    const response = await fixture.worker.fetch(adminRequest(), fixture.env);
+    assert.ok(Date.now() - started < 4000);
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.equal(data.comments.length, 1);
+    assert.equal(data.notifications.enabled, true);
+    assert.equal(data.notifications.configured, false);
+    assert.equal(data.notifications.queued, 1);
+    assert.equal(requests.length, 0);
+  }
+});
+
+test('posting uses the delivery endpoint directly without a readiness preflight', async () => {
+  const fixture = setup();
+  let checks = 0;
+  const requests = notifications(fixture, undefined, async () => { checks++; throw new Error('readiness unavailable'); });
+  await submit(fixture);
+  assert.equal(requests.length, 1);
+  assert.equal(checks, 0);
+  assert.equal((await notificationSummary(fixture)).configured, false);
+  assert.equal(checks, 1);
+  assert.equal(requests.length, 1);
 });

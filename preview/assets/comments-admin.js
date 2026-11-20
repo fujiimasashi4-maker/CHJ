@@ -1,9 +1,20 @@
 const byId=id=>document.getElementById(id);
 const status=byId('admin-status'),list=byId('moderation-list'),filter=byId('review-status'),refresh=byId('refresh'),more=byId('admin-more');
 const dialog=byId('review-dialog'),dialogBody=byId('review-body'),dialogMessage=byId('review-message'),confirmButton=byId('review-confirm'),cancelButton=byId('review-cancel');
+const notificationStatus=byId('notification-status'),notificationRetry=byId('notification-retry'),notificationResult=byId('notification-result');
 const labels={pending:'確認待ち',approved:'公開済み',rejected:'非公開'};
 const news={ 'fsf-ashiya-2026-12-12':{title:'ファイブスターフェス in 芦屋中央病院',href:'/#events'} };
-let cursor=null,busy=false,review=null;
+let cursor=null,busy=false,review=null,notifications=null;
+function validNotifications(value){return value&&typeof value.enabled==='boolean'&&typeof value.configured==='boolean'&&['queued','retry_wait','sending','accepted'].every(key=>Number.isSafeInteger(value[key])&&value[key]>=0);}
+function setNotifications(value){
+ notifications=validNotifications(value)?value:null;
+ if(!notifications)notificationStatus.textContent='メール通知の状態を取得できません。最新の投稿を確認して状態を読み直してください。';
+ else{
+  const state=!value.enabled?'メール通知はまだ有効になっていません。':!value.configured?'メール通知の接続設定が未完了です。':'メール通知は有効です。';
+  notificationStatus.textContent=state+' 未送信 '+value.queued+'件 ／ 再試行待ち '+value.retry_wait+'件 ／ 送信処理中 '+value.sending+'件 ／ 送信受付済み '+value.accepted+'件。';
+ }
+ notificationRetry.disabled=busy||!!review||!notifications?.enabled||!notifications?.configured||notifications.queued===0;
+}
 function el(tag,text){const node=document.createElement(tag);if(text!==undefined)node.textContent=String(text);return node;}
 function dateText(value){const date=new Date(value);return value&&!Number.isNaN(date.getTime())?new Intl.DateTimeFormat('ja-JP',{dateStyle:'medium',timeStyle:'short',timeZone:'Asia/Tokyo'}).format(date):'未処理';}
 async function fetchTimed(url,options={}){const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),25000);try{return await fetch(url,{...options,signal:controller.signal,cache:'no-store',credentials:'same-origin'});}finally{clearTimeout(timer);}}
@@ -13,6 +24,7 @@ function controls(disabled){
  for(const key of Object.keys(labels))byId('count-'+key).disabled=disabled;
  list.querySelectorAll('button').forEach(button=>button.disabled=disabled);
  cancelButton.disabled=disabled;confirmButton.disabled=disabled||!review||review.stale||(review.value==='approved'&&!review.photoReady);
+ notificationRetry.disabled=disabled||!!review||!notifications?.enabled||!notifications?.configured||notifications.queued===0;
 }
 function setCounts(counts){for(const key of Object.keys(labels))byId(key+'-count').textContent=counts?String(counts[key]):'—';}
 async function load(append=false,notice=''){
@@ -24,11 +36,11 @@ async function load(append=false,notice=''){
   if(!Array.isArray(data.comments)||!data.counts||Object.keys(labels).some(k=>!Number.isSafeInteger(data.counts[k])||data.counts[k]<0))throw new Error('response');
   const seen=new Set(Array.from(list.children,card=>card.dataset.id));
   for(const comment of data.comments)if(!seen.has(comment.id)){render(comment);seen.add(comment.id);}
-  cursor=data.next_cursor||null;more.hidden=!cursor;setCounts(data.counts);
+  cursor=data.next_cursor||null;more.hidden=!cursor;setCounts(data.counts);setNotifications(data.notifications);
   byId('last-updated').textContent='最終更新：'+dateText(new Date().toISOString())+'（日本時間）';
   status.textContent=notice||(list.children.length?labels[filter.value]+' '+data.counts[filter.value]+'件のうち '+list.children.length+'件を表示しています。':'該当する投稿はありません。');
  }catch(error){
-  if(!append)setCounts(null);
+  if(!append){setCounts(null);setNotifications(null);}
   status.textContent=(notice?notice+' ただし一覧を更新できませんでした。':'管理画面を読み込めません。')+' 接続を確認して再読み込みしてください。ログインの有効期限が切れている場合はログインし直してください。';
   byId('login-help').hidden=false;
  }finally{controls(false);}
@@ -82,7 +94,18 @@ confirmButton.addEventListener('click',async()=>{
 });
 cancelButton.addEventListener('click',()=>{if(!busy)dialog.close();});
 dialog.addEventListener('cancel',event=>{if(busy)event.preventDefault();});
-dialog.addEventListener('close',()=>{review=null;});
+dialog.addEventListener('close',()=>{review=null;controls(busy);});
+notificationRetry.addEventListener('click',async()=>{
+ if(busy||dialog.open||!notifications?.enabled||!notifications?.configured||notifications.queued===0)return;
+ controls(true);notificationResult.textContent='未送信の通知を処理しています…';
+ try{
+  const data=await readJSON(await fetchTimed('/api/admin/notifications/retry',{method:'POST',headers:{Accept:'application/json'}}));
+  if(!validNotifications(data.notifications)||![0,1].includes(data.attempted))throw new Error('response');
+  setNotifications(data.notifications);
+  notificationResult.textContent=data.attempted?'通知を1件処理しました。上の送信状況をご確認ください。「送信受付済み」は受信箱への到着を保証するものではありません。':'再試行できる通知はありません。再試行待ちの通知は、時間をおいてから最新の状態をご確認ください。';
+ }catch{notificationResult.textContent='通知の処理結果を確認できません。最新の投稿を確認して送信状況を読み直してください。必要に応じてログインし直してください。';setNotifications(null);byId('login-help').hidden=false;}
+ finally{controls(false);}
+});
 filter.addEventListener('change',()=>load());refresh.addEventListener('click',()=>load());more.addEventListener('click',()=>load(true));
 for(const key of Object.keys(labels))byId('count-'+key).addEventListener('click',()=>{filter.value=key;return load();});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&!busy&&!dialog.open)load();});

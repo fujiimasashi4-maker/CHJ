@@ -3,6 +3,10 @@ const MAX_BODY_BYTES = 1_000_000;
 const MAX_PHOTO_BYTES = 750_000;
 const TEN_MINUTES = 600_000;
 const ONE_DAY = 86_400_000;
+const NOTIFICATION_LEASE_MS = 60_000;
+const NOTIFICATION_TIMEOUT_MS = 5000;
+const NOTIFICATION_STATUS_TIMEOUT_MS = 2000;
+const NOTIFICATION_BACKOFF_MS = [60_000, 300_000, 1_800_000, 21_600_000];
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const encoder = new TextEncoder();
 const decoder = new TextDecoder('utf-8', { fatal: true });
@@ -205,7 +209,152 @@ async function createComment(request, env, now) {
     if (retried) return json({ id: retried.id, status: 'pending' }, 202);
     throw new ApiError(429, 'rate_limited', { 'Retry-After': '600' });
   }
+  // The INSERT trigger has already persisted the outbox atomically with the
+  // comment. Delivery and even subsequent outbox-write failures cannot change
+  // the accepted receipt. Idempotent retries never initiate another attempt.
+  try {
+    await attemptNotification(database, env, now, id);
+  } catch {
+    // A failed claim remains queued; a failed finalization recovers by lease.
+  }
   return json({ id, status: 'pending' }, 202);
+}
+
+function notificationConfiguration(env) {
+  return {
+    enabled: env.NOTIFICATIONS_ENABLED === 'true',
+    configured: Boolean(env.CHJ_EMAIL_NOTIFIER && typeof env.CHJ_EMAIL_NOTIFIER.fetch === 'function'),
+  };
+}
+
+async function notificationSummary(database, env, timestamp) {
+  const summary = {
+    enabled: notificationConfiguration(env).enabled,
+    configured: await notificationReadiness(env),
+    queued: 0, retry_wait: 0, sending: 0, accepted: 0,
+  };
+  const result = await database.prepare(`
+    SELECT CASE
+      WHEN accepted_at IS NOT NULL THEN 'accepted'
+      WHEN lease_until > ?1 THEN 'sending'
+      WHEN next_attempt_at > ?1 THEN 'retry_wait'
+      ELSE 'queued'
+    END AS state, COUNT(*) AS count
+    FROM notification_outbox GROUP BY state
+  `).bind(timestamp).all();
+  for (const row of result.results) {
+    if (!['queued', 'retry_wait', 'sending', 'accepted'].includes(row.state)
+        || !Number.isSafeInteger(row.count) || row.count < 0) throw new Error('Invalid notification count');
+    summary[row.state] = row.count;
+  }
+  return summary;
+}
+
+async function notificationReadiness(env) {
+  const configuration = notificationConfiguration(env);
+  if (!configuration.enabled || !configuration.configured) return false;
+  try {
+    const result = await notificationServiceJSON(env, '/status', 'GET', NOTIFICATION_STATUS_TIMEOUT_MS);
+    return result?.enabled === true && result?.configured === true;
+  } catch {
+    // Health failures cannot hide the moderation list or expose diagnostics.
+    return false;
+  }
+}
+
+async function notificationServiceJSON(env, path, method, timeout) {
+  const controller = new AbortController();
+  let timer;
+  const deadline = new Promise((resolve, reject) => {
+    timer = setTimeout(() => {
+      const error = new DOMException('Notification timeout', 'TimeoutError');
+      controller.abort(error);
+      reject(error);
+    }, timeout);
+  });
+  try {
+    const delivery = (async () => {
+      // Only fixed internal paths are used. No incoming request headers or
+      // private post data are included in either health or delivery requests.
+      const response = await env.CHJ_EMAIL_NOTIFIER.fetch(new Request('https://chj-notifier.internal' + path, {
+        method, redirect: 'manual', signal: controller.signal,
+      }));
+      if (response.status !== 200 || !/^application\/json\b/i.test(response.headers.get('Content-Type') || '')) {
+        throw new Error('Notification not accepted');
+      }
+      return JSON.parse(decoder.decode(await readBody(response, 4096)));
+    })();
+    return await Promise.race([delivery, deadline]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function sendNotification(env) {
+  // Readiness is a read-only admin concern. Delivery calls the fixed endpoint
+  // directly; the private Worker independently rejects disabled/unready sends.
+  const result = await notificationServiceJSON(env, '/notify', 'POST', NOTIFICATION_TIMEOUT_MS);
+  if (!result || result.accepted !== true) throw new Error('Notification not accepted');
+}
+
+async function attemptNotification(database, env, now, commentId = null) {
+  const configuration = notificationConfiguration(env);
+  if (!configuration.enabled || !configuration.configured) return 0;
+  const timestamp = now();
+  const token = crypto.randomUUID();
+  const bindings = [token, timestamp + NOTIFICATION_LEASE_MS, timestamp];
+  if (commentId !== null) bindings.push(commentId);
+  // Claim and due/lease checks are one atomic statement, including when two
+  // administrators retry concurrently. A short lease recovers interrupted work.
+  const claimed = await database.prepare(`
+    UPDATE notification_outbox
+    SET lease_token = ?1, lease_until = ?2, attempts = attempts + 1
+    WHERE comment_id = (
+      SELECT comment_id FROM notification_outbox
+      WHERE accepted_at IS NULL AND next_attempt_at <= ?3
+        AND (lease_until IS NULL OR lease_until <= ?3)
+        ${commentId !== null ? 'AND comment_id = ?4' : ''}
+      ORDER BY created_at, comment_id LIMIT 1
+    )
+      AND accepted_at IS NULL AND next_attempt_at <= ?3
+      AND (lease_until IS NULL OR lease_until <= ?3)
+    RETURNING comment_id, attempts
+  `).bind(...bindings).first();
+  if (!claimed) return 0;
+  let failure = null;
+  try {
+    await sendNotification(env);
+  } catch (error) {
+    failure = error?.name === 'TimeoutError' ? 'timeout' : 'delivery_failed';
+  }
+  if (failure === null) {
+    // Acceptance by the mail service is not proof of inbox delivery. If this
+    // write fails after acceptance, retry can duplicate a notice; SMTP offers
+    // no exactly-once guarantee across that failure window.
+    await database.prepare(`
+      UPDATE notification_outbox
+      SET accepted_at = ?1, lease_token = NULL, lease_until = NULL, last_error = NULL
+      WHERE comment_id = ?2 AND lease_token = ?3 AND accepted_at IS NULL
+    `).bind(now(), claimed.comment_id, token).run();
+  } else {
+    const backoff = NOTIFICATION_BACKOFF_MS[Math.min(claimed.attempts - 1, NOTIFICATION_BACKOFF_MS.length - 1)];
+    await database.prepare(`
+      UPDATE notification_outbox
+      SET next_attempt_at = ?1, lease_token = NULL, lease_until = NULL, last_error = ?2
+      WHERE comment_id = ?3 AND lease_token = ?4 AND accepted_at IS NULL
+    `).bind(now() + backoff, failure, claimed.comment_id, token).run();
+  }
+  return 1;
+}
+
+async function retryNotifications(request, env, now) {
+  // This endpoint accepts no recipient, content, identifier or other input.
+  if (new URL(request.url).search || (await readBody(request, 4096)).length > 0) {
+    throw new ApiError(400, 'invalid_request');
+  }
+  const database = requireDatabase(env);
+  const attempted = await attemptNotification(database, env, now);
+  return json({ notifications: await notificationSummary(database, env, now()), attempted });
 }
 
 function pagination(url) {
@@ -229,7 +378,7 @@ function pagination(url) {
   return { limit: Number(limitValue), timestamp, id };
 }
 
-async function listComments(request, env, admin = false) {
+async function listComments(request, env, admin = false, notificationTime = Date.now()) {
   const database = requireDatabase(env);
   const url = new URL(request.url);
   if ((!admin && url.searchParams.get('news') !== NEWS_ID)
@@ -272,6 +421,7 @@ async function listComments(request, env, admin = false) {
       counts.total += row.count;
     }
     response.counts = counts;
+    response.notifications = await notificationSummary(database, env, notificationTime);
   }
   return json(response);
 }
@@ -409,7 +559,11 @@ export function createWorker({ fetch: fetchCertificates = globalThis.fetch, now 
         }
         if (pathname.startsWith('/api/admin/')) {
           await authorize(request, env);
-          if (pathname === '/api/admin/comments' && request.method === 'GET') return await listComments(request, env, true);
+          if (pathname === '/api/admin/comments' && request.method === 'GET') return await listComments(request, env, true, now());
+          if (pathname === '/api/admin/notifications/retry') {
+            if (request.method !== 'POST') throw new ApiError(405, 'method_not_allowed', { Allow: 'POST' });
+            return await retryNotifications(request, env, now);
+          }
           const adminPhoto = pathname.match(/^\/api\/admin\/photos\/([^/]+)$/);
           if (adminPhoto && request.method === 'GET') return await getPhoto(adminPhoto[1], env, true);
           const comment = pathname.match(/^\/api\/admin\/comments\/([^/]+)$/);

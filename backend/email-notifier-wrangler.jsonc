@@ -1,0 +1,20 @@
+{
+  "$schema": "https://raw.githubusercontent.com/cloudflare/workers-sdk/main/packages/wrangler/config-schema.json",
+  "name": "chj-email-notifier",
+  "main": "email-notifier-worker.mjs",
+  "compatibility_date": "2026-11-20",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [],
+  "vars": {
+    "NOTIFICATIONS_ENABLED": "false",
+    // Placeholder only: verify its routing domain before approving any sends.
+    "NOTIFICATION_FROM": "notifications@chjapan.com"
+  },
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "destination_address": "fujii.masashi.4@gmail.com"
+    }
+  ]
+}

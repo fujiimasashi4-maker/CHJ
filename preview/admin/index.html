@@ -30,10 +30,18 @@
 <p id="login-help" hidden>ログインが必要な場合は、<a href="./">管理画面にログインし直す</a>からご本人のCloudflareアカウントでログインしてください。</p>
 <div id="moderation-list"></div>
 <button type="button" id="admin-more" hidden>さらに20件表示</button>
+<section class="review-guide" aria-labelledby="notification-heading">
+<h2 id="notification-heading">新着メール通知</h2>
+<p>新しい投稿のお知らせと管理画面リンクを、運営者の指定アドレスへ通知します。投稿者名・本文・写真はメールに含めません。</p>
+<p id="notification-status" role="status" aria-live="polite">メール通知の状態を確認しています。</p>
+<button type="button" id="notification-retry" disabled>未送信の通知を再試行</button>
+<p id="notification-result" role="status" aria-live="polite"></p>
+<p class="admin-note">再試行は1件ずつ処理します。送信に失敗しても投稿は保存されます。「送信受付済み」はメールサーバーによる受付であり、受信箱への到着確認ではありません。再試行により同じ通知が届く場合があります。</p>
+</section>
 <details class="review-guide"><summary>投稿確認の手順</summary>
 <ol><li>「確認待ち」を選び、表示名・本文・写真を確認します。写真は押すと拡大できます。</li><li>掲載してよい投稿は「確認して公開」を押し、確認画面でもう一度内容を見て「この内容で公開する」を押します。</li><li>掲載しない投稿は「非公開にする」を選びます。投稿は削除されず、後から再公開できます。</li><li>掲載後に取り下げる場合は「公開済み」から「非公開にする」を選びます。</li></ol>
 <p>患者さんなど個人を特定できる情報、第三者への誹謗中傷、許可のない写真が含まれていないか確認してください。公開した投稿は日本語版・英語版の両方に表示されます。</p>
-<p class="admin-note">新着メールの自動通知はありません。このURLをブックマークし、定期的に「最新の投稿を確認」で確認してください。画面に戻ったときにも一覧を更新します。日時は日本時間で表示します。</p>
+<p class="admin-note">メール通知の有効・無効と送信状況は上の「新着メール通知」で確認できます。このURLをブックマークし、定期的に「最新の投稿を確認」でも確認してください。画面に戻ったときにも一覧を更新します。日時は日本時間で表示します。</p>
 </details>
 </main>
 <dialog id="review-dialog" class="review-dialog" aria-labelledby="review-title" aria-describedby="review-message">
@@ -41,6 +49,6 @@
 <div id="review-body" class="dialog-body"></div>
 <div class="dialog-actions"><button type="button" id="review-cancel" class="secondary">閉じる</button><button type="button" id="review-confirm">この内容で公開する</button></div>
 </dialog>
-<script type="module" src="../assets/comments-admin.js?v=20261120-3"></script>
+<script type="module" src="../assets/comments-admin.js?v=20261120-4"></script>
 </body>
 </html>

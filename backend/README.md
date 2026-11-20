@@ -114,7 +114,33 @@ D1未設定・スキーマ未適用・DB障害ではコメント／写真APIは5
 
 写真はD1に保存され、D1とWorkersには利用中プランの容量・実行上限が適用されます。投稿レコードと写真の自動削除機能は含めていません。データ確認用のSQLでは`SELECT id, name, comment, status, length(photo) AS photo_bytes FROM comments`などを使い、BLOB全体や秘密値をクエリログへ出力しないでください。
 
-## ローカル検証
+## 新着投稿メール（有効化前）
+
+宛先は `fujii.masashi.4@gmail.com` 固定。件名は「【CHJ】確認待ちの投稿があります」。本文は汎用のお知らせと `https://chjapan.com/admin/` のみで、投稿者名・本文・写真を含めません。テストと自動通知の有効化は、AGENTS.mdに従う具体的なメール文面の承認後に行います。
+
+構成はPages→内部Service binding→専用Worker→メールbindingです。宛先は専用Workerのコードで固定し、呼出元から宛先・本文を受け取りません。Pagesは対応bindingの一覧にsend_emailがないため、専用Workerを利用します。実行時のREST APIキーは不要です。
+
+### 有効化の順序
+
+1. Cloudflare Email Routingの送信元ドメインを設定し、固定宛先を追加・本人認証します。既存の受信メール設定があるドメインでは、DNS変更による影響を確認します。今回のchjapan.comは新規MX3件・SPF/DKIM各1件の追加画面まで確認済みで、有効化は承認待ちです。
+2. D1 Consoleで `notification-migration.sql` を適用。既存の投稿の一括通知は行いません。新規DB用の `comments-schema.sql` にも同じoutbox/triggerを含めています。
+3. `email-notifier-wrangler.jsonc` に対応する `chj-email-notifier` Workerを配置し、`EMAIL` メールbindingと `NOTIFICATION_FROM=notifications@chjapan.com` を設定。`workers.dev`・プレビューURL・公開routeは無効にします。Wrangler配置では `destination_address` も固定します。現在のDashboardのメールbinding追加画面は名前だけの設定のため、その経路では宛先制限はコード内で実施します（固定宛先以外の値はコードにありません）。
+4. Pages ProductionにService binding **`CHJ_EMAIL_NOTIFIER` → `chj-email-notifier`** を追加します。専用WorkerにD1やコメント本文へのアクセスは与えません。
+5. 承認前は専用WorkerとPages双方の **`NOTIFICATIONS_ENABLED=false`** を維持。承認後に双方を文字列 **`true`** としてデプロイし、承認済みのテスト1通を確認します。既存投稿をテスト通知のために公開する必要はありません。
+
+GET `https://chj-notifier.internal/status` は送信せずにboolの `enabled`・`configured` だけを返します。管理一覧は2秒の期限で確認し、応答不正・設定不足・通信障害時には通知未設定として表示し、投稿一覧自体は表示します。実送信は本文なしの固定POST `https://chj-notifier.internal/notify` だけです。
+
+### 保存と再試行
+
+新規投稿のINSERT triggerが通知待ちを同時保存します。honeypot、拒否された投稿、受付キーの再送は新規通知を作りません。送信失敗やその後の通知状態更新失敗があっても、保存済み投稿の202受付を維持します。メールAPIへの通知に投稿IDや個人情報を渡しません。
+
+1回の試行期限は5秒、leaseは60秒。失敗時は1分・5分・30分・6時間の待機を順に適用し、送信サーバーの受付後は自動的に再送しません。通知は新規保存直後に1回試みます。失敗した通知の再試行は管理画面から手動で行います。定期実行による自動再送は今回含めていません。
+
+管理一覧の `notifications` は `enabled`・`configured` と `queued`・`retry_wait`・`sending`・`accepted` の件数です。一般公開APIには含めません。管理者認証・同一オリジンが必要な `POST /api/admin/notifications/retry` は、本文・クエリなしで最大1件を試行し、`{notifications,attempted:0|1}` を返します。GET操作によってメールを送ることはありません。
+
+送信受付は受信箱への到着を証明しません。送信後に通信が途切れた場合や受付結果のDB保存に失敗した場合には、再試行で通知が重複する可能性があります。例外の生メッセージやメール本文はログ・公開応答に出しません。
+
+### メール機能のローカル検証
 
 Node.js 24以降で、追加パッケージを入れずに実行できます。
 
