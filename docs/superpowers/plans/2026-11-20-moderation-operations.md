@@ -21,18 +21,20 @@
 - A failed refresh must not allow stale or mismatched-filter actions.
 
 ## Task 1: Backend
-- [ ] Add failing SQLite tests for authenticated counts, private-only review metadata and stale-state rejection.
-- [ ] Add admin-only counts and list metadata; compare expected_status and expected_moderated_at when supplied, preserving older API compatibility.
-- [ ] Verify backend suite, including existing Access and upload tests.
+- [x] Add failing SQLite tests for authenticated counts, private-only review metadata and stale-state rejection.
+- [x] Add admin-only counts and list metadata; compare expected_status and expected_moderated_at when supplied, preserving older API compatibility.
+- [x] Verify backend suite, including existing Access and upload tests.
 
 ## Task 2: Admin UI
-- [ ] Add meaningful UI regressions for confirmation-before-save, cancellation, stale conflict, HTML login failure, and filter-load failure.
-- [ ] Add counts, state badges, news context, timestamps, login recovery and a review dialog with cancel/save.
-- [ ] Refresh counts after saves; invalidate list on filter failure; avoid replacing an open review automatically.
-- [ ] Check desktop and mobile preview using local in-memory D1 and simulated local-only Access.
+- [x] Add meaningful UI regressions for confirmation-before-save, cancellation, stale conflict, HTML login failure, and filter-load failure.
+- [x] Add counts, state badges, news context, timestamps, login recovery and a review dialog with cancel/save.
+- [x] Refresh counts after saves; invalidate list on filter failure; avoid replacing an open review automatically.
+- [x] Check desktop and mobile preview using local in-memory D1 and simulated local-only Access.
 
 ## Task 3: Production
-- [ ] Review diff and run all meaningful tests.
-- [ ] Commit/push source and package only the production whitelist; preserve other files byte-for-byte.
-- [ ] Deploy via existing Cloudflare Direct Upload UI. Verify authenticated review screen, counts and non-public photo display.
-- [ ] Save screenshots and document the daily review procedure and verification limits.
+- [x] Review diff and run all meaningful tests.
+- [x] Commit/push source and package only the production whitelist; preserve other files byte-for-byte.
+- [x] Deploy via existing Cloudflare Direct Upload UI. Verify authenticated review screen, counts and non-public photo display.
+- [x] Save screenshots and document the daily review procedure and verification limits.
+
+Completed 2026-11-20. Production code 3795ef4; 35 tests pass; review and core smoke pass. Live authenticated counts, private photo and cancel verified. Actual pending post untouched; saves exercised in local browser/SQLite and tests. See workspace chj-moderation-production-review.md.
